@@ -1,6 +1,7 @@
-import axios from "axios";
+
 const RSS_DIRECTORY = "https://thethao247.vn/rss.html";
 const PROXY = "https://proxy.cors.dev/";
+
 async function fetchURL(url) {
     const response = await fetch(PROXY + url, {
         method: "GET",
@@ -11,6 +12,7 @@ async function fetchURL(url) {
     }
     return await response.text();
 }
+
 export async function getAllRSSCategories() {
     const html = await fetchURL(RSS_DIRECTORY);
     const parser = new DOMParser();
@@ -28,30 +30,65 @@ export async function getAllRSSCategories() {
     });
     return [...new Map(categories.map(item => [item.url, item])).values()];
 }
+
 function parseRSS(xmlText, category) {
     const parser = new DOMParser();
     const xml = parser.parseFromString(xmlText, "text/xml");
     if (xml.querySelector("parsererror")) {
         throw new Error("RSS XML không hợp lệ");
     }
-    return Array.from(xml.querySelectorAll("item")).map(item => {
-        const getText = tag => item.getElementsByTagName(tag)[0]?.textContent || "";
-        const enclosure = item.querySelector("enclosure");
+    const items = Array.from(xml.querySelectorAll("item"));
+    return items.map(item => {
+        function getText(tag) {
+            return item.getElementsByTagName(tag)[0]?.textContent?.trim() || "";
+        }
+        const title = getText("title");
+        const link = getText("link");
+        let description = getText("description");
+        if (!description) {
+            description = getText("content:encoded");
+        }
+        const descriptionDoc = parser.parseFromString(description, "text/html");
+        const imageInDescription = descriptionDoc.querySelector("img")?.getAttribute("src") || "";
+        const cleanDescription = descriptionDoc.body.textContent.replace(/\s+/g, " ").trim();
+        let image = "";
+        const enclosure = item.getElementsByTagName("enclosure")[0];
+        if (enclosure) {
+            image = enclosure.getAttribute("url") || "";
+        }
+        if (!image) {
+            const media = item.getElementsByTagName("media:content")[0];
+            image = media?.getAttribute("url") || "";
+        }
+        if (!image) {
+            const thumbnail = item.getElementsByTagName("media:thumbnail")[0];
+            image = thumbnail?.getAttribute("url") || "";
+        }
+        if (!image) {
+            image = imageInDescription;
+        }
+        const pubDate = getText("pubDate");
+        const timestamp = Date.parse(pubDate);
+        const formattedDate = Number.isNaN(timestamp) ? null : new Date(timestamp).toISOString();
         return {
-            id: getText("guid") || getText("link"),
-            title: getText("title"),
-            description: getText("description"),
-            link: getText("link"),
-            pubDate: getText("pubDate"),
-            image: enclosure?.getAttribute("url") || "",
+            id: getText("guid") || link,
+            title,
+            image,
+            description: cleanDescription,
+            link,
             category: category.name,
-            categoryUrl: category.url
+            pubDate: formattedDate
         };
     });
 }
-export async function getAllRSSNews() {const categories = await getAllRSSCategories();
-    console.log("Tổng số danh mục RSS:", categories.length);
-    console.log("Danh sách danh mục:", categories);
+
+export async function getAllRSSNews() {
+    console.log("Bắt đầu lấy dữ liệu RSS...");
+    const categories = await getAllRSSCategories();
+    console.log("Tổng số danh mục:", categories.length);
+    if (categories.length === 0) {
+        throw new Error("Không tìm thấy danh mục RSS nào");
+    }
     const allNews = [];
     for (let i = 0; i < categories.length; i += 5) {
         const group = categories.slice(i, i + 5);
@@ -61,33 +98,33 @@ export async function getAllRSSNews() {const categories = await getAllRSSCategor
                 return parseRSS(xml, category);
             })
         );
-// lấy full rss có 1289 bài
         results.forEach((result, index) => {
             if (result.status === "fulfilled") {
-                allNews.push(...result.value); //allNews.push(...result.value.slice(0, 10)); gioi han bai
+                allNews.push(...result.value);
+                console.log("Đã lấy:", group[index].name, result.value.length, "bài");
             } else {
-                console.error(
-                    "Lỗi RSS:",
-                    group[index].name,
-                    result.reason
-                );
+                console.error("Lỗi RSS:", group[index].name, result.reason);
             }
         });
+        console.log("Tổng bài đã lấy tạm thời:", allNews.length);
     }
-    const uniqueNews = [...new Map(allNews.map(item => [item.link, item])).values()];
-    uniqueNews.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-    return uniqueNews.slice();
+    const uniqueNews = [...new Map(allNews.map(item => [item.link || item.id, item])).values()];
+    uniqueNews.sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));
+    console.log("Tổng số bài viết sau chuẩn hóa:", uniqueNews.length);
+    console.log("Bài viết đầu tiên:", uniqueNews[0]);
+    console.table(uniqueNews.slice(0, 10));
+    return uniqueNews;
 }
+
 export async function testRSS() {
     const url = "https://thethao247.vn/bong-da-viet-nam-c1.rss";
     try {
         const text = await fetchURL(url);
-        console.log("RSS RESPONSE:", text.substring(0, 1000));
         const parser = new DOMParser();
-        const xml = parser.parseFromString(text, "application/xml");
+        const xml = parser.parseFromString(text, "text/xml");
+        console.log("RSS RESPONSE:", text.substring(0, 1000));
         console.log("PARSER ERROR:", xml.querySelector("parsererror"));
         console.log("RSS ITEMS:", xml.querySelectorAll("item").length);
-
     } catch (error) {
         console.error("TEST RSS ERROR:", error);
     }

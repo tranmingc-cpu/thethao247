@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import {getAllRSSNews, testRSS} from "../../services/rssService";
+import { getAllRSSNews } from "../../services/rssService";
 function Home() {
     const [news, setNews] = useState([]);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
-        testRSS();
         async function loadNews() {
             try {
                 const data = await getAllRSSNews();
@@ -29,9 +28,7 @@ function Home() {
                     <h3>{item.title}</h3>
                     <p>{item.category}</p>
                     <p>{item.description}</p>
-                    <a href={item.link}
-                       target="_blank"
-                       rel="noreferrer">
+                    <a href={item.link} target="_blank" rel="noreferrer">
                         Đọc bài viết
                     </a>
                 </article>
