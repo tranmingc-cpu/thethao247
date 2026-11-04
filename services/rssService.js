@@ -31,6 +31,7 @@ export async function getAllRSSCategories() {
     return [...new Map(categories.map(item => [item.url, item])).values()];
 }
 
+
 function parseRSS(xmlText, category) {
     const parser = new DOMParser();
     const xml = parser.parseFromString(xmlText, "text/xml");
@@ -38,50 +39,46 @@ function parseRSS(xmlText, category) {
         throw new Error("RSS XML không hợp lệ");
     }
     const items = Array.from(xml.querySelectorAll("item"));
-    return items.map(item => {
+    const newsList = items.map(item => {
         function getText(tag) {
             return item.getElementsByTagName(tag)[0]?.textContent?.trim() || "";
         }
         const title = getText("title");
         const link = getText("link");
-        let description = getText("description");
-        if (!description) {
-            description = getText("content:encoded");
-        }
+        let description = getText("description") || getText("content:encoded");
         const descriptionDoc = parser.parseFromString(description, "text/html");
         const imageInDescription = descriptionDoc.querySelector("img")?.getAttribute("src") || "";
         const cleanDescription = descriptionDoc.body.textContent.replace(/\s+/g, " ").trim();
         let image = "";
         const enclosure = item.getElementsByTagName("enclosure")[0];
+        const media = item.getElementsByTagName("media:content")[0];
+        const thumbnail = item.getElementsByTagName("media:thumbnail")[0];
         if (enclosure) {
             image = enclosure.getAttribute("url") || "";
         }
-        if (!image) {
-            const media = item.getElementsByTagName("media:content")[0];
-            image = media?.getAttribute("url") || "";
+        if (!image && media) {
+            image = media.getAttribute("url") || "";
         }
-        if (!image) {
-            const thumbnail = item.getElementsByTagName("media:thumbnail")[0];
-            image = thumbnail?.getAttribute("url") || "";
+        if (!image && thumbnail) {
+            image = thumbnail.getAttribute("url") || "";
         }
         if (!image) {
             image = imageInDescription;
         }
         const pubDate = getText("pubDate");
         const timestamp = Date.parse(pubDate);
-        const formattedDate = Number.isNaN(timestamp) ? null : new Date(timestamp).toISOString();
         return {
             id: getText("guid") || link,
-            title,
-            image,
+            title: title,
+            link: link,
             description: cleanDescription,
-            link,
+            image: image,
             category: category.name,
-            pubDate: formattedDate
+            pubDate: Number.isNaN(timestamp) ? null : new Date(timestamp).toISOString()
         };
     });
+    return newsList;
 }
-
 export async function getAllRSSNews() {
     console.log("Bắt đầu lấy dữ liệu RSS...");
     const categories = await getAllRSSCategories();
