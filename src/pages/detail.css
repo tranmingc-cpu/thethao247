@@ -1,0 +1,243 @@
+.detail-wrapper {
+    max-width: 1240px;
+    margin: 20px auto 40px;
+    padding: 0 15px;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 20px;
+}
+
+.breadcrumb button {
+    background: transparent;
+    border: none;
+    color: #c8102e;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+}
+
+.breadcrumb button:hover {
+    text-decoration: underline;
+}
+
+.detail-layout {
+    display: grid;
+    grid-template-columns: 2.2fr 1fr;
+    gap: 28px;
+}
+
+.detail-main {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.detail-category-tag {
+    display: inline-block;
+    background: #c8102e;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 3px;
+    margin-bottom: 12px;
+}
+
+.detail-title {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.35;
+    color: #111827;
+    margin-bottom: 14px;
+}
+
+.detail-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 13px;
+    color: #94a3b8;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 20px;
+}
+
+.detail-sapo {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.6;
+    color: #334155;
+    background: #f8fafc;
+    border-left: 4px solid #c8102e;
+    padding: 14px 18px;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 24px;
+}
+
+.detail-cover {
+    width: 100%;
+    max-height: 480px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    background: #111;
+}
+
+.detail-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.detail-content {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #1f2937;
+    margin-bottom: 30px;
+}
+
+.detail-content p {
+    margin-bottom: 16px;
+}
+
+.detail-original-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    padding: 14px 20px;
+    border-radius: 6px;
+    margin-top: 25px;
+}
+
+.detail-original-link span {
+    font-size: 13px;
+    color: #1e40af;
+}
+
+.detail-original-link a {
+    background: #2563eb;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.detail-original-link a:hover {
+    background: #1d4ed8;
+}
+
+.related-section {
+    margin-top: 35px;
+    border-top: 2px solid #e2e8f0;
+    padding-top: 20px;
+}
+
+.related-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: #c8102e;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+
+.related-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.related-card {
+    background: #f8fafc;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid #e2e8f0;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.related-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+
+.related-thumb {
+    height: 110px;
+    background: #e2e8f0;
+    overflow: hidden;
+}
+
+.related-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.related-card h5 {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.4;
+    padding: 10px;
+    color: #1e293b;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.related-card:hover h5 {
+    color: #c8102e;
+}
+
+.btn-back-home {
+    background: #c8102e;
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    margin-bottom: 15px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-back-home:hover {
+    background: #a00c24;
+}
+
+@media (max-width: 992px) {
+    .detail-layout {
+        grid-template-columns: 1fr;
+    }
+    .related-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .detail-title {
+        font-size: 20px;
+    }
+    .detail-main {
+        padding: 16px;
+    }
+    .related-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
