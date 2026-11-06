@@ -30,7 +30,11 @@ export async function getAllRSSCategories() {
     });
     return [...new Map(categories.map(item => [item.url, item])).values()];
 }
-
+function repairRSS(text) {
+    const end = text.lastIndexOf("</item>");
+    if (end === -1) return text;
+    return text.slice(0, end + "</item>".length) + "</channel></rss>";
+}
 
 function parseRSS(xmlText, category) {
     const parser = new DOMParser();
@@ -143,4 +147,12 @@ export async function getSportsNews(sports) {
     const all = results.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
     const unique = [...new Map(all.map((i) => [i.link || i.id, i])).values()];
     return unique.sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));
+}
+
+export async function debugFeed(url) {
+    const text = await fetchURL(url);
+    console.log("Độ dài:", text.length);
+    console.log("500 ký tự đầu:", text.substring(0, 500));
+    const xml = new DOMParser().parseFromString(text, "text/xml");
+    console.log("parsererror:", xml.querySelector("parsererror")?.textContent);
 }
