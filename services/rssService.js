@@ -34,9 +34,13 @@ export async function getAllRSSCategories() {
 
 function parseRSS(xmlText, category) {
     const parser = new DOMParser();
-    const xml = parser.parseFromString(xmlText, "text/xml");
+    let xml = parser.parseFromString(xmlText, "text/xml");
     if (xml.querySelector("parsererror")) {
-        throw new Error("RSS XML không hợp lệ");
+        console.warn("RSS lỗi, thử vá:", category.name);
+        xml = parser.parseFromString(repairRSS(xmlText), "text/xml");
+        if (xml.querySelector("parsererror")) {
+            throw new Error("RSS XML không hợp lệ");
+        }
     }
     const items = Array.from(xml.querySelectorAll("item"));
     const newsList = items.map(item => {
@@ -74,6 +78,7 @@ function parseRSS(xmlText, category) {
             description: cleanDescription,
             image: image,
             category: category.name,
+            slug: category.slug || "",
             pubDate: Number.isNaN(timestamp) ? null : new Date(timestamp).toISOString()
         };
     });
@@ -125,4 +130,17 @@ export async function testRSS() {
     } catch (error) {
         console.error("TEST RSS ERROR:", error);
     }
+}
+
+export async function getSportsNews(sports) {
+    const results = await Promise.allSettled(
+        sports.map(async (s) => parseRSS(await fetchURL(s.rss), { name: s.name, slug: s.slug }))
+    );
+    results.forEach((r, i) => {
+        if (r.status === "fulfilled") console.log(sports[i].name, r.value.length, "bài");
+        else console.error("Lỗi:", sports[i].name, r.reason);
+    });
+    const all = results.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
+    const unique = [...new Map(all.map((i) => [i.link || i.id, i])).values()];
+    return unique.sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));
 }

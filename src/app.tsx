@@ -6,6 +6,8 @@ import Footer from "./components/footer";
 import Home from "./pages/home";
 import Detail from "./pages/detail";
 import { NewsItem } from "./types";
+import { getSportsNews } from "../services/rssService.js";
+import { SPORTS } from "./config/sports";
 
 const App: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -13,6 +15,9 @@ const App: React.FC = () => {
         (state: RootState) => state.news
     );
     useEffect(() => {dispatch(fetchNews());}, [dispatch]);
+    useEffect(() => {
+        getSportsNews(SPORTS).then((n) => console.log("Tổng:", n.length, n[0]));
+    }, []);
     const defaultNav = [
         "Bóng đá Việt Nam",
         "Bóng đá Quốc Tế",
