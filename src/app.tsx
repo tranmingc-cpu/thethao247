@@ -6,13 +6,20 @@ import Footer from "./components/footer";
 import Home from "./pages/home";
 import Detail from "./pages/detail";
 import { NewsItem } from "./types";
+import { getSportsNews } from "../services/rssService.js";
+import { SPORTS } from "./config/sports";
+import { debugFeed } from "../services/rssService.js";
 
 const App: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { items: news, loading, selectedCategory, search, selectedArticle } = useSelector(
         (state: RootState) => state.news
     );
+    useEffect(() => { debugFeed("https://thethao247.vn/golf-c42.rss"); }, []);
     useEffect(() => {dispatch(fetchNews());}, [dispatch]);
+    useEffect(() => {
+        getSportsNews(SPORTS).then((n) => console.log("Tổng:", n.length, n[0]));
+    }, []);
     const defaultNav = [
         "Bóng đá Việt Nam",
         "Bóng đá Quốc Tế",
