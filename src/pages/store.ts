@@ -1,6 +1,6 @@
 import { configureStore, createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { getAllRSSNews } from "../../services/rssService";
-import { NewsItem } from "../types";
+import { getAllRSSNews } from "../services/rssService";
+import { NewsItem } from "../types/types.ts";
 
 export interface NewsState {
     items: NewsItem[];

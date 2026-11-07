@@ -5,52 +5,57 @@ import Header from "./components/header";
 import Footer from "./components/footer";
 import Home from "./pages/home";
 import Detail from "./pages/detail";
-import { NewsItem } from "./types";
-import { getSportsNews } from "../services/rssService.js";
-import { SPORTS } from "./config/sports";
-import { debugFeed } from "../services/rssService.js";
+import { NewsItem } from "./types/types.ts";
+import { getArticlesByCategories } from "./services/rssService";
+import { FootBall } from "./config/football";
 
 const App: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { items: news, loading, selectedCategory, search, selectedArticle } = useSelector(
         (state: RootState) => state.news
     );
-    useEffect(() => { debugFeed("https://thethao247.vn/golf-c42.rss"); }, []);
-    useEffect(() => {dispatch(fetchNews());}, [dispatch]);
+
+    // 1. Tải danh sách bài viết khi component mount
     useEffect(() => {
-        getSportsNews(SPORTS).then((n) => console.log("Tổng:", n.length, n[0]));
+        dispatch(fetchNews());
+    }, [dispatch]);
+
+    // Log kiểm tra dữ liệu tin tức đã map từ RSS
+    useEffect(() => {
+        getArticlesByCategories(FootBall).then((articles) => {
+            console.log("Tổng số bài viết đã tải từ RSS:", articles.length);
+            if (articles.length > 0) {
+                console.log("Mẫu bài viết đầu tiên:", articles[0]);
+            }
+        });
     }, []);
-    const defaultNav = [
-        "Bóng đá Việt Nam",
-        "Bóng đá Quốc Tế",
-        "Bóng đá Anh",
-        "Champions League",
-        "Bóng chuyền",
-        "Quần vợt",
-        "Võ thuật",
-        "Esports"
-    ];
+
+    // 2. Lấy danh sách danh mục để hiển thị lên thanh điều hướng Header
     const categories = useMemo(() => {
-        const setCats = new Set(news.map((item) => item.category).filter(Boolean));
-        const dynamicCats = Array.from(setCats);
-        return ["Tất cả", ...new Set([...defaultNav, ...dynamicCats])];
-    }, [news]);
+        const catNames = FootBall.map((cat) => cat.name);
+        return ["Tất cả", ...catNames];
+    }, []);
+
     const handleSelectCategory = (category: string) => {
         dispatch(setSelectedCategory(category));
         dispatch(setSelectedArticle(null));
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
+
     const handleSearchChange = (val: string) => {
         dispatch(setSearch(val));
     };
+
     const handleArticleClick = (article: NewsItem) => {
         dispatch(setSelectedArticle(article));
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
+
     const handleBackHome = () => {
         dispatch(setSelectedArticle(null));
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
+
     if (loading && news.length === 0) {
         return (
             <div className="loading-container">
@@ -59,6 +64,7 @@ const App: React.FC = () => {
             </div>
         );
     }
+
     return (
         <div className="thethao247-app">
             <Header
@@ -74,7 +80,8 @@ const App: React.FC = () => {
                     onBack={handleBackHome}
                     onSelectArticle={handleArticleClick}
                     allNews={news}
-                />) : (
+                />
+            ) : (
                 <Home
                     news={news}
                     selectedCategory={selectedCategory}
@@ -87,5 +94,5 @@ const App: React.FC = () => {
         </div>
     );
 };
-export default App;
 
+export default App;
