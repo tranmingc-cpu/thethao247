@@ -1,61 +1,64 @@
-import React, { useEffect, useMemo } from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchNews, setSelectedCategory, setSearch, setSelectedArticle, RootState, AppDispatch } from "./pages/store";
 import Header from "./components/header";
 import Footer from "./components/footer";
 import Home from "./pages/home";
 import Detail from "./pages/detail";
-import { NewsItem } from "./types/types.ts";
-import { getArticlesByCategories } from "./services/rssService";
-import { FootBall } from "./config/football";
+import SeaGames from "./pages/sea-games";
+import { NewsItem } from "./types";
+import { SPORTS } from "./config/sports";
+import {fetchSports} from "./pages/sportsSlice.ts";
+import SportsPage from "./pages/sports";
 
 const App: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { items: news, loading, selectedCategory, search, selectedArticle } = useSelector(
         (state: RootState) => state.news
     );
+    const [view, setView] = useState<"news" | "sports">("news");
+    const sportsItems = useSelector((state: RootState) => state.sports.items);
 
-    // 1. Tải danh sách bài viết khi component mount
+    useEffect(() => { dispatch(fetchSports()); }, [dispatch]);
+    const sports = useSelector((s: RootState) => s.sports);
+    useEffect(() => { dispatch(fetchSports()); }, [dispatch]);
     useEffect(() => {
-        dispatch(fetchNews());
-    }, [dispatch]);
-
-    // Log kiểm tra dữ liệu tin tức đã map từ RSS
-    useEffect(() => {
-        getArticlesByCategories(FootBall).then((articles) => {
-            console.log("Tổng số bài viết đã tải từ RSS:", articles.length);
-            if (articles.length > 0) {
-                console.log("Mẫu bài viết đầu tiên:", articles[0]);
-            }
-        });
-    }, []);
-
-    // 2. Lấy danh sách danh mục để hiển thị lên thanh điều hướng Header
+        console.log("[SPORTS]", { loading: sports.loading, count: sports.items.length, error: sports.error });
+    }, [sports.loading, sports.items.length, sports.error]);
+    useEffect(() => {dispatch(fetchNews());}, [dispatch]);
+    const defaultNav = [
+        "Bóng đá Việt Nam",
+        "Bóng đá Quốc Tế",
+        "Bóng đá Anh",
+        "Champions League",
+        "Bóng chuyền",
+        "SEA Games 33",
+        "Quần vợt",
+        "Võ thuật",
+        "Esports"
+    ];
     const categories = useMemo(() => {
-        const catNames = FootBall.map((cat) => cat.name);
-        return ["Tất cả", ...catNames];
-    }, []);
-
+        const setCats = new Set(news.map((item) => item.category).filter(Boolean));
+        const dynamicCats = Array.from(setCats);
+        return ["Tất cả", ...new Set([...defaultNav, ...dynamicCats])];
+    }, [news]);
     const handleSelectCategory = (category: string) => {
+        setView("news");
         dispatch(setSelectedCategory(category));
         dispatch(setSelectedArticle(null));
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
-
     const handleSearchChange = (val: string) => {
         dispatch(setSearch(val));
     };
-
     const handleArticleClick = (article: NewsItem) => {
         dispatch(setSelectedArticle(article));
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
-
     const handleBackHome = () => {
         dispatch(setSelectedArticle(null));
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
-
     if (loading && news.length === 0) {
         return (
             <div className="loading-container">
@@ -64,7 +67,6 @@ const App: React.FC = () => {
             </div>
         );
     }
-
     return (
         <div className="thethao247-app">
             <Header
@@ -74,13 +76,30 @@ const App: React.FC = () => {
                 onSearchChange={handleSearchChange}
                 categories={categories}
             />
+            <div style={{ maxWidth: 1240, margin: "10px auto 0", padding: "0 15px", display: "flex", gap: 8 }}>
+                <button type="button" onClick={() => { setView("news"); dispatch(setSelectedArticle(null)); }}>
+                    Tin chung
+                </button>
+                <button type="button" onClick={() => { setView("sports"); dispatch(setSelectedArticle(null)); }}>
+                    Thể thao
+                </button>
+            </div>
             {selectedArticle ? (
                 <Detail
                     article={selectedArticle}
                     onBack={handleBackHome}
                     onSelectArticle={handleArticleClick}
-                    allNews={news}
+                    allNews={view === "sports" ? sportsItems : news}
                 />
+            ) : selectedCategory.toLocaleLowerCase("vi-VN").includes("sea games") ||
+                selectedCategory.toLocaleLowerCase("vi-VN").includes("seagames") ? (
+                <SeaGames
+                    news={news}
+                    search={search}
+                    onArticleClick={handleArticleClick}
+                />
+            ) : view === "sports" ? (
+                <SportsPage onArticleClick={handleArticleClick} />
             ) : (
                 <Home
                     news={news}
@@ -94,5 +113,5 @@ const App: React.FC = () => {
         </div>
     );
 };
-
 export default App;
+

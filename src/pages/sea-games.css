@@ -1,0 +1,403 @@
+.sea-games-page {
+    width: min(1200px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 34px 0 70px;
+    color: #172033;
+}
+
+.sea-games-heading {
+    padding: 25px 0 27px;
+    border-bottom: 3px solid #c8102e;
+}
+
+.sea-games-heading__eyebrow,
+.sea-games-section-title__eyebrow {
+    color: #c8102e;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.sea-games-heading h1 {
+    margin: 9px 0 7px;
+    color: #101827;
+    font-size: clamp(29px, 4vw, 43px);
+    font-weight: 900;
+    line-height: 1.12;
+    letter-spacing: -1px;
+}
+
+.sea-games-heading p {
+    margin: 0;
+    color: #687386;
+    font-size: 14px;
+}
+
+.sea-games-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 18px 0;
+    border-bottom: 1px solid #e5e9ef;
+}
+
+.sea-games-category-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.sea-games-category {
+    padding: 8px 14px;
+    border: 1px solid #e1e5eb;
+    border-radius: 3px;
+    background: #fff;
+    color: #4b5565;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    transition: .18s ease;
+}
+
+.sea-games-category:hover,
+.sea-games-category.is-active {
+    border-color: #c8102e;
+    background: #c8102e;
+    color: #fff;
+}
+
+.sea-games-sort {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    color: #647084;
+    font-size: 13px;
+}
+
+.sea-games-sort select {
+    min-height: 36px;
+    padding: 0 10px;
+    border: 1px solid #dce1e8;
+    border-radius: 3px;
+    background: #fff;
+    color: #273246;
+    font: inherit;
+}
+
+.sea-games-featured {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(280px, .9fr);
+    gap: 28px;
+    margin: 28px 0 42px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #e5e9ef;
+}
+
+.sea-games-featured__image,
+.sea-games-card__image {
+    display: block;
+    width: 100%;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    background: #edf0f4;
+    cursor: pointer;
+    text-align: center;
+}
+
+.sea-games-featured__image {
+    aspect-ratio: 16 / 9;
+}
+
+.sea-games-featured__image img,
+.sea-games-card__image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .25s ease;
+}
+
+.sea-games-featured__image:hover img,
+.sea-games-card__image:hover img {
+    transform: scale(1.035);
+}
+
+.sea-games-image-placeholder {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    min-height: 130px;
+    place-items: center;
+    background: linear-gradient(135deg, #97132b, #e23a4d);
+    color: #fff;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+.sea-games-featured__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.sea-games-label {
+    display: inline-block;
+    margin-bottom: 12px;
+    padding: 6px 9px;
+    background: #c8102e;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .8px;
+}
+
+.sea-games-date {
+    margin-bottom: 10px;
+    color: #8992a1;
+    font-size: 12px;
+}
+
+.sea-games-featured__title,
+.sea-games-card__title {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #172033;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    font-weight: 800;
+}
+
+.sea-games-featured__title {
+    font-size: clamp(22px, 2.5vw, 30px);
+    line-height: 1.28;
+}
+
+.sea-games-featured__title:hover,
+.sea-games-card__title:hover {
+    color: #c8102e;
+}
+
+.sea-games-featured__content p {
+    margin: 13px 0 20px;
+    color: #687386;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.sea-games-read-more {
+    padding: 10px 15px;
+    border: 0;
+    background: #172033;
+    color: #fff;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .4px;
+}
+
+.sea-games-read-more:hover {
+    background: #c8102e;
+}
+
+.sea-games-news-section {
+    margin-top: 10px;
+}
+
+.sea-games-section-title {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.sea-games-section-title h2 {
+    margin: 5px 0 0;
+    color: #172033;
+    font-size: 25px;
+    font-weight: 900;
+}
+
+.sea-games-news-count {
+    color: #7b8493;
+    font-size: 13px;
+}
+
+.sea-games-news-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 25px 20px;
+}
+
+.sea-games-card {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid #e8ebf0;
+    background: #fff;
+    transition: box-shadow .2s ease, transform .2s ease;
+}
+
+.sea-games-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(20, 31, 50, .09);
+}
+
+.sea-games-card__image {
+    aspect-ratio: 16 / 10;
+}
+
+.sea-games-card__body {
+    padding: 15px 15px 17px;
+}
+
+.sea-games-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 7px;
+    margin-bottom: 10px;
+    color: #8a93a2;
+    font-size: 11px;
+}
+
+.sea-games-card__meta span {
+    color: #c8102e;
+    font-weight: 800;
+}
+
+.sea-games-card__title {
+    display: -webkit-box;
+    min-height: 58px;
+    overflow: hidden;
+    font-size: 16px;
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.sea-games-card__body p {
+    display: -webkit-box;
+    margin: 9px 0 0;
+    overflow: hidden;
+    color: #758092;
+    font-size: 13px;
+    line-height: 1.6;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}
+
+.sea-games-load-more-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.sea-games-load-more {
+    padding: 12px 22px;
+    border: 1px solid #c8102e;
+    background: #fff;
+    color: #c8102e;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.sea-games-load-more:hover {
+    background: #c8102e;
+    color: #fff;
+}
+
+.sea-games-empty {
+    padding: 75px 20px;
+    text-align: center;
+}
+
+.sea-games-empty__icon {
+    margin-bottom: 12px;
+    font-size: 42px;
+}
+
+.sea-games-empty h2 {
+    margin: 0 0 9px;
+    color: #172033;
+    font-size: 22px;
+}
+
+.sea-games-empty p {
+    margin: 5px 0;
+    color: #778194;
+    font-size: 14px;
+}
+
+@media (max-width: 850px) {
+    .sea-games-featured {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .sea-games-news-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .sea-games-page {
+        width: min(100% - 28px, 1200px);
+        padding-top: 22px;
+    }
+
+    .sea-games-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .sea-games-sort {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .sea-games-news-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .sea-games-card {
+        display: grid;
+        grid-template-columns: 118px minmax(0, 1fr);
+    }
+
+    .sea-games-card__image {
+        height: 100%;
+        min-height: 125px;
+        aspect-ratio: auto;
+    }
+
+    .sea-games-card__body {
+        padding: 11px;
+    }
+
+    .sea-games-card__title {
+        min-height: auto;
+        font-size: 14px;
+        -webkit-line-clamp: 3;
+    }
+
+    .sea-games-card__body p {
+        display: none;
+    }
+
+    .sea-games-card__meta time {
+        font-size: 10px;
+    }
+
+    .sea-games-section-title h2 {
+        font-size: 21px;
+    }
+}
