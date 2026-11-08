@@ -30,10 +30,36 @@ export async function getAllRSSCategories() {
     });
     return [...new Map(categories.map(item => [item.url, item])).values()];
 }
-function repairRSS(text) {
-    const end = text.lastIndexOf("</item>");
-    if (end === -1) return text;
-    return text.slice(0, end + "</item>".length) + "</channel></rss>";
+function extractItems(text) {
+    const parser = new DOMParser();
+    const wrap = (s) =>
+        `<?xml version="1.0" encoding="utf-8"?>` +
+        `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" ` +
+        `xmlns:content="http://purl.org/rss/1.0/modules/content/" ` +
+        `xmlns:dc="http://purl.org/dc/elements/1.1/" ` +
+        `xmlns:media="http://search.yahoo.com/mrss/"><channel>${s}</channel></rss>`;
+
+    const rawItems = text.match(/<item>[\s\S]*?<\/item>/g) || [];
+    const good = [];
+    let skipped = 0;
+
+    rawItems.forEach((raw) => {
+        const ok = (s) => !parser.parseFromString(wrap(s), "text/xml").querySelector("parsererror");
+        if (ok(raw)) {
+            good.push(raw);
+            return;
+        }
+        // thử đóng CDATA bị thiếu rồi parse lại
+        const fixed = raw.replace("</description>", "]]></description>");
+        if (ok(fixed)) {
+            good.push(fixed);
+        } else {
+            skipped++;
+        }
+    });
+
+    console.warn(`extractItems: giữ ${good.length}, bỏ ${skipped} bài lỗi`);
+    return wrap(good.join(""));
 }
 
 function parseRSS(xmlText, category) {
@@ -41,7 +67,7 @@ function parseRSS(xmlText, category) {
     let xml = parser.parseFromString(xmlText, "text/xml");
     if (xml.querySelector("parsererror")) {
         console.warn("RSS lỗi, thử vá:", category.name);
-        xml = parser.parseFromString(repairRSS(xmlText), "text/xml");
+        xml = parser.parseFromString(extractItems(xmlText), "text/xml");
         if (xml.querySelector("parsererror")) {
             throw new Error("RSS XML không hợp lệ");
         }
@@ -147,12 +173,4 @@ export async function getSportsNews(sports) {
     const all = results.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
     const unique = [...new Map(all.map((i) => [i.link || i.id, i])).values()];
     return unique.sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));
-}
-
-export async function debugFeed(url) {
-    const text = await fetchURL(url);
-    console.log("Độ dài:", text.length);
-    console.log("500 ký tự đầu:", text.substring(0, 500));
-    const xml = new DOMParser().parseFromString(text, "text/xml");
-    console.log("parsererror:", xml.querySelector("parsererror")?.textContent);
 }

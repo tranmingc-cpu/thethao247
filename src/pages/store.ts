@@ -1,6 +1,7 @@
 import { configureStore, createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { getAllRSSNews } from "../../services/rssService";
 import { NewsItem } from "../types";
+import sportsReducer from "./sportsSlice";
 
 export interface NewsState {
     items: NewsItem[];
@@ -59,7 +60,8 @@ export const { setSelectedCategory, setSearch, setSelectedArticle } = newsSlice.
 
 export const store = configureStore({
     reducer: {
-        news: newsSlice.reducer
+        news: newsSlice.reducer,
+        sports: sportsReducer
     }
 });
 

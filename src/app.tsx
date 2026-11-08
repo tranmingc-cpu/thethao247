@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchNews, setSelectedCategory, setSearch, setSelectedArticle, RootState, AppDispatch } from "./pages/store";
 import Header from "./components/header";
@@ -6,20 +6,25 @@ import Footer from "./components/footer";
 import Home from "./pages/home";
 import Detail from "./pages/detail";
 import { NewsItem } from "./types";
-import { getSportsNews } from "../services/rssService.js";
 import { SPORTS } from "./config/sports";
-import { debugFeed } from "../services/rssService.js";
+import {fetchSports} from "./pages/sportsSlice.ts";
+import SportsPage from "./pages/sports";
 
 const App: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { items: news, loading, selectedCategory, search, selectedArticle } = useSelector(
         (state: RootState) => state.news
     );
-    useEffect(() => { debugFeed("https://thethao247.vn/golf-c42.rss"); }, []);
-    useEffect(() => {dispatch(fetchNews());}, [dispatch]);
+    const [view, setView] = useState<"news" | "sports">("news");
+    const sportsItems = useSelector((state: RootState) => state.sports.items);
+
+    useEffect(() => { dispatch(fetchSports()); }, [dispatch]);
+    const sports = useSelector((s: RootState) => s.sports);
+    useEffect(() => { dispatch(fetchSports()); }, [dispatch]);
     useEffect(() => {
-        getSportsNews(SPORTS).then((n) => console.log("Tổng:", n.length, n[0]));
-    }, []);
+        console.log("[SPORTS]", { loading: sports.loading, count: sports.items.length, error: sports.error });
+    }, [sports.loading, sports.items.length, sports.error]);
+    useEffect(() => {dispatch(fetchNews());}, [dispatch]);
     const defaultNav = [
         "Bóng đá Việt Nam",
         "Bóng đá Quốc Tế",
@@ -68,13 +73,24 @@ const App: React.FC = () => {
                 onSearchChange={handleSearchChange}
                 categories={categories}
             />
+            <div style={{ maxWidth: 1240, margin: "10px auto 0", padding: "0 15px", display: "flex", gap: 8 }}>
+                <button type="button" onClick={() => { setView("news"); dispatch(setSelectedArticle(null)); }}>
+                    Tin chung
+                </button>
+                <button type="button" onClick={() => { setView("sports"); dispatch(setSelectedArticle(null)); }}>
+                    Thể thao
+                </button>
+            </div>
             {selectedArticle ? (
                 <Detail
                     article={selectedArticle}
                     onBack={handleBackHome}
                     onSelectArticle={handleArticleClick}
-                    allNews={news}
-                />) : (
+                    allNews={view === "sports" ? sportsItems : news}
+                />
+            ) : view === "sports" ? (
+                <SportsPage onArticleClick={handleArticleClick} />
+            ) : (
                 <Home
                     news={news}
                     selectedCategory={selectedCategory}
