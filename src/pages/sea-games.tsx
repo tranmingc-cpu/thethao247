@@ -8,8 +8,6 @@ interface SeaGamesProps {
     onArticleClick: (article: NewsItem) => void;
 }
 
-// Chỉ nhận bài viết từ RSS chính và các RSS con thuộc SEA Games 33.
-// Không dùng từ khóa trong mô tả/tiêu đề để tránh nhận nhầm bài chỉ nhắc đến SEA Games.
 const SEA_GAMES_RSS_PATHS = new Set([
     "/sea-games-33-c88.rss",
     "/bong-da-sea-games-c129.rss",
@@ -17,8 +15,6 @@ const SEA_GAMES_RSS_PATHS = new Set([
     "/cac-mon-khac-c132.rss"
 ]);
 
-// Chỉ nhận bài đến từ RSS chính thức của SEA Games 33 và các RSS con đã xác định.
-// Không dùng tên category/slug hoặc từ khóa trong tiêu đề để tránh nhận nhầm bài.
 const isSeaGamesArticle = (item: NewsItem) => {
     if (!item.sourceUrl) return false;
 

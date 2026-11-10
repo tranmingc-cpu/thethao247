@@ -35,8 +35,6 @@ export async function getAllRSSCategories() {
         const href = link.getAttribute("href");
         if (!href || !/\.rss(?:[?#]|$)/i.test(href)) return;
 
-        // Link RSS thường nằm cùng một thẻ li với tên chuyên mục.
-        // Lấy tên từ thẻ cha thay vì text của chính link (thường chỉ là chữ "RSS").
         const parent = link.closest("li") || link.parentElement;
         const categoryLink = parent
             ? Array.from(parent.querySelectorAll("a[href]")).find(anchor => !/\.rss(?:[?#]|$)/i.test(anchor.getAttribute("href") || ""))
@@ -56,7 +54,7 @@ export async function getAllRSSCategories() {
         categories.push({ name, url, slug });
     });
 
-    // Các RSS con của SEA Games 33 cũng là nguồn hợp lệ cho trang SEA Games.
+    // Các RSS con của SEA Games 33.
     const extraCategories = [
         { name: "SEA Games 33", url: "https://thethao247.vn/sea-games-33-c88.rss", slug: "sea-games" },
         { name: "Bóng đá SEA Games", url: "https://thethao247.vn/bong-da-sea-games-c129.rss", slug: "sea-games" },
@@ -189,8 +187,8 @@ export async function getAllRSSNews() {
         });
         console.log("Tổng bài đã lấy tạm thời:", allNews.length);
     }
-    // Nếu một bài xuất hiện ở nhiều RSS, ưu tiên bản ghi đến từ RSS chuyên mục
-    // đã được gắn slug (Xe / SEA Games), tránh bản ghi từ RSS tổng ghi đè nguồn.
+
+
     const uniqueMap = new Map();
     allNews.forEach((item) => {
         const key = item.link || item.id;
