@@ -5,6 +5,8 @@ export interface NewsItem {
     description: string;
     link: string;
     category: string;
+    slug?: string;
+    sourceUrl?: string;
     pubDate: string | null;
 }
 

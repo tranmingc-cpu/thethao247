@@ -8,11 +8,26 @@ interface SeaGamesProps {
     onArticleClick: (article: NewsItem) => void;
 }
 
-// Hàm kiểm tra bài viết có liên quan đến SEA Games hay không
-// Mở rộng tìm kiếm trong cả category, tiêu đề (title), tóm tắt (description) và link
+// Chỉ nhận bài viết từ RSS chính và các RSS con thuộc SEA Games 33.
+// Không dùng từ khóa trong mô tả/tiêu đề để tránh nhận nhầm bài chỉ nhắc đến SEA Games.
+const SEA_GAMES_RSS_PATHS = new Set([
+    "/sea-games-33-c88.rss",
+    "/bong-da-sea-games-c129.rss",
+    "/tin-ben-le-c131.rss",
+    "/cac-mon-khac-c132.rss"
+]);
+
+// Chỉ nhận bài đến từ RSS chính thức của SEA Games 33 và các RSS con đã xác định.
+// Không dùng tên category/slug hoặc từ khóa trong tiêu đề để tránh nhận nhầm bài.
 const isSeaGamesArticle = (item: NewsItem) => {
-    const textToSearch = `${item.category || ""} ${item.title || ""} ${item.description || ""} ${item.link || ""}`.toLocaleLowerCase("vi-VN");
-    return textToSearch.includes("sea games") || textToSearch.includes("seagames");
+    if (!item.sourceUrl) return false;
+
+    try {
+        const sourcePath = new URL(item.sourceUrl, "https://thethao247.vn").pathname.toLowerCase();
+        return SEA_GAMES_RSS_PATHS.has(sourcePath);
+    } catch {
+        return false;
+    }
 };
 
 const formatDate = (date: string | null) => {
@@ -35,9 +50,9 @@ const SeaGames: React.FC<SeaGamesProps> = ({ news, search, onArticleClick }) => 
     const [sortMode, setSortMode] = useState("newest");
     const [visibleCount, setVisibleCount] = useState(9);
 
-    // Lọc tất cả bài viết liên quan đến SEA Games dựa trên từ khóa mở rộng
+    // Lọc theo URL nguồn RSS SEA Games, không quét bài từ các RSS khác.
     const seaGamesNews = useMemo(() => {
-        return news.filter((item) => isSeaGamesArticle(item));
+        return news.filter(isSeaGamesArticle);
     }, [news]);
 
     const categories = useMemo(() => {

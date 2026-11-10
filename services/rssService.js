@@ -30,23 +30,53 @@ export async function getAllRSSCategories() {
     const doc = parser.parseFromString(html, "text/html");
     const links = doc.querySelectorAll("a[href]");
     const categories = [];
+
     links.forEach(link => {
         const href = link.getAttribute("href");
-        if (href && /\.rss(?:[?#]|$)/i.test(href)) {
-            categories.push({
-                name: link.textContent.trim() || "Tin tức",
-                url: new URL(href, RSS_DIRECTORY).href
-            });
+        if (!href || !/\.rss(?:[?#]|$)/i.test(href)) return;
+
+        // Link RSS thường nằm cùng một thẻ li với tên chuyên mục.
+        // Lấy tên từ thẻ cha thay vì text của chính link (thường chỉ là chữ "RSS").
+        const parent = link.closest("li") || link.parentElement;
+        const categoryLink = parent
+            ? Array.from(parent.querySelectorAll("a[href]")).find(anchor => !/\.rss(?:[?#]|$)/i.test(anchor.getAttribute("href") || ""))
+            : null;
+        const parentText = categoryLink?.textContent || parent?.textContent || "";
+        const name = parentText.replace(/\bRSS\b/gi, "").replace(/[|–—-]/g, " ").replace(/\s+/g, " ").trim()
+            || link.textContent.trim()
+            || "Tin tức";
+        const url = new URL(href, RSS_DIRECTORY).href;
+        const lowerName = name.toLocaleLowerCase("vi-VN");
+        const lowerUrl = url.toLocaleLowerCase("vi-VN");
+
+        let slug = "";
+        if (lowerUrl.includes("/xe-c191.rss") || lowerName === "xe") slug = "xe";
+        if (lowerUrl.includes("sea-games") || lowerName.includes("sea games") || lowerName.includes("seagames")) slug = "sea-games";
+
+        categories.push({ name, url, slug });
+    });
+
+    // Các RSS con của SEA Games 33 cũng là nguồn hợp lệ cho trang SEA Games.
+    const extraCategories = [
+        { name: "SEA Games 33", url: "https://thethao247.vn/sea-games-33-c88.rss", slug: "sea-games" },
+        { name: "Bóng đá SEA Games", url: "https://thethao247.vn/bong-da-sea-games-c129.rss", slug: "sea-games" },
+        { name: "Tin bên lề SEA Games", url: "https://thethao247.vn/tin-ben-le-c131.rss", slug: "sea-games" },
+        { name: "Môn khác SEA Games", url: "https://thethao247.vn/cac-mon-khac-c132.rss", slug: "sea-games" },
+    ];
+
+    extraCategories.forEach(extra => {
+        const existing = categories.find(item => item.url === extra.url);
+        if (existing) {
+            existing.name = extra.name;
+            existing.slug = extra.slug;
+        } else {
+            categories.push(extra);
         }
     });
-    // Them feed SEA Games rieng neu RSS directory chua liet ke, tranh bo sot bai SEA Games.
-    const seaGamesUrl = "https://thethao247.vn/sea-games-33-c88.rss";
-    if (!categories.some(item => item.url === seaGamesUrl)) {
-        categories.push({ name: "SEA Games 33", slug: "sea-games-33", url: seaGamesUrl });
-    }
 
     return [...new Map(categories.map(item => [item.url, item])).values()];
 }
+
 function extractItems(text) {
     const parser = new DOMParser();
     const wrap = (s) =>
@@ -127,6 +157,7 @@ function parseRSS(xmlText, category) {
             image: image,
             category: category.name,
             slug: category.slug || "",
+            sourceUrl: category.url || "",
             pubDate: Number.isNaN(timestamp) ? null : new Date(timestamp).toISOString()
         };
     });
@@ -158,7 +189,17 @@ export async function getAllRSSNews() {
         });
         console.log("Tổng bài đã lấy tạm thời:", allNews.length);
     }
-    const uniqueNews = [...new Map(allNews.map(item => [item.link || item.id, item])).values()];
+    // Nếu một bài xuất hiện ở nhiều RSS, ưu tiên bản ghi đến từ RSS chuyên mục
+    // đã được gắn slug (Xe / SEA Games), tránh bản ghi từ RSS tổng ghi đè nguồn.
+    const uniqueMap = new Map();
+    allNews.forEach((item) => {
+        const key = item.link || item.id;
+        const existing = uniqueMap.get(key);
+        if (!existing || (!existing.slug && item.slug)) {
+            uniqueMap.set(key, item);
+        }
+    });
+    const uniqueNews = [...uniqueMap.values()];
     uniqueNews.sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));
     console.log("Tổng số bài viết sau chuẩn hóa:", uniqueNews.length);
     console.log("Bài viết đầu tiên:", uniqueNews[0]);
