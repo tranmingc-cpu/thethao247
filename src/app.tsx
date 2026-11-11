@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
     setSelectedCategory,
@@ -12,12 +13,15 @@ import Header from "./components/header";
 import Footer from "./components/footer";
 import Home from "./pages/home";
 import Detail from "./pages/detail";
+import Sports from "./pages/sports/sports";
+import Events from "./pages/events/events";
 import { NewsItem } from "./types/types";
 import { FootBall } from "./config/football";
 import { getLiveCategoriesFromHomeRSS } from "./services/rssServices";
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
+    const navigate = useNavigate();
     const { items: news, loading, selectedCategory, search, selectedArticle } = useSelector(
         (state: RootState) => state.news
     );
@@ -50,11 +54,13 @@ const App: React.FC = () => {
 
     const handleArticleClick = (article: NewsItem) => {
         dispatch(setSelectedArticle(article));
+        navigate("/chi-tiet");
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     const handleBackHome = () => {
         dispatch(setSelectedArticle(null));
+        navigate(-1);
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
@@ -77,26 +83,62 @@ const App: React.FC = () => {
                 categories={categories}
             />
 
-            {selectedArticle ? (
-                <Detail
-                    article={selectedArticle}
-                    onBack={handleBackHome}
-                    onSelectArticle={handleArticleClick}
-                    allNews={news}
+            <Routes>
+                <Route
+                    path="/"
+                    element={
+                        <Home
+                            news={news}
+                            selectedCategory={selectedCategory}
+                            onSelectCategory={handleSelectCategory}
+                            search={search}
+                            onArticleClick={handleArticleClick}
+                        />
+                    }
                 />
-            ) : (
-                <Home
-                    news={news}
-                    selectedCategory={selectedCategory}
-                    onSelectCategory={handleSelectCategory}
-                    search={search}
-                    onArticleClick={handleArticleClick}
+                <Route
+                    path="/the-thao"
+                    element={
+                        <Sports
+                            search={search}
+                            onArticleClick={handleArticleClick}
+                        />
+                    }
                 />
-            )}
+                <Route
+                    path="/su-kien"
+                    element={
+                        <Events
+                            search={search}
+                            onArticleClick={handleArticleClick}
+                        />
+                    }
+                />
+                <Route
+                    path="/chi-tiet"
+                    element={
+                        <Detail
+                            article={selectedArticle}
+                            onBack={handleBackHome}
+                            onSelectArticle={handleArticleClick}
+                            allNews={news}
+                        />
+                    }
+                />
+            </Routes>
 
             <Footer />
         </div>
     );
 };
 
+const App: React.FC = () => {
+    return (
+        <BrowserRouter>
+            <AppContent />
+        </BrowserRouter>
+    );
+};
+
 export default App;
+
