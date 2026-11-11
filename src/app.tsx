@@ -1,40 +1,42 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchNews, setSelectedCategory, setSearch, setSelectedArticle, RootState, AppDispatch } from "./pages/store";
+import {
+    setSelectedCategory,
+    setSearch,
+    setSelectedArticle,
+    fetchNews,
+    RootState,
+    AppDispatch
+} from "./pages/store";
 import Header from "./components/header";
 import Footer from "./components/footer";
 import Home from "./pages/home";
 import Detail from "./pages/detail";
-import { NewsItem } from "./types/types.ts";
-import { getArticlesByCategories } from "./services/rssService";
+import { NewsItem } from "./types/types";
 import { FootBall } from "./config/football";
+import { getLiveCategoriesFromHomeRSS } from "./services/rssServices";
 
 const App: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { items: news, loading, selectedCategory, search, selectedArticle } = useSelector(
         (state: RootState) => state.news
     );
+    const [dynamicCats, setDynamicCats] = useState<string[]>([]);
 
-    // 1. Tải danh sách bài viết khi component mount
     useEffect(() => {
-        dispatch(fetchNews());
-    }, [dispatch]);
-
-    // Log kiểm tra dữ liệu tin tức đã map từ RSS
-    useEffect(() => {
-        getArticlesByCategories(FootBall).then((articles) => {
-            console.log("Tổng số bài viết đã tải từ RSS:", articles.length);
-            if (articles.length > 0) {
-                console.log("Mẫu bài viết đầu tiên:", articles[0]);
+        dispatch(fetchNews(FootBall));
+        getLiveCategoriesFromHomeRSS().then((cats) => {
+            if (cats && cats.length > 0) {
+                setDynamicCats(cats);
             }
         });
-    }, []);
+    }, [dispatch]);
 
-    // 2. Lấy danh sách danh mục để hiển thị lên thanh điều hướng Header
     const categories = useMemo(() => {
-        const catNames = FootBall.map((cat) => cat.name);
-        return ["Tất cả", ...catNames];
-    }, []);
+        const list = dynamicCats.length > 0 ? dynamicCats : FootBall.map((cat) => cat.name);
+        const filtered = list.filter((cat) => cat !== "Trang chủ / Tổng hợp");
+        return ["Tất cả", ...filtered];
+    }, [dynamicCats]);
 
     const handleSelectCategory = (category: string) => {
         dispatch(setSelectedCategory(category));
@@ -42,8 +44,8 @@ const App: React.FC = () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
-    const handleSearchChange = (val: string) => {
-        dispatch(setSearch(val));
+    const handleSearchChange = (value: string) => {
+        dispatch(setSearch(value));
     };
 
     const handleArticleClick = (article: NewsItem) => {
@@ -74,6 +76,7 @@ const App: React.FC = () => {
                 onSearchChange={handleSearchChange}
                 categories={categories}
             />
+
             {selectedArticle ? (
                 <Detail
                     article={selectedArticle}
@@ -90,6 +93,7 @@ const App: React.FC = () => {
                     onArticleClick={handleArticleClick}
                 />
             )}
+
             <Footer />
         </div>
     );
