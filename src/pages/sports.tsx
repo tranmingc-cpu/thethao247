@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { SPORTS } from '../../config/sports';
-import { getAllRSSNews } from '../../services/rssServices';
-import { NewsItem } from '../../types/types';
+import { SPORTS } from '../config/sports';
+import { getAllRSSNews } from '../services/rssServices';
+import { NewsItem } from '../types/types';
 import '../home.css';
 
 interface SportsProps {

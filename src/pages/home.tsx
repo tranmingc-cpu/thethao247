@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { NewsItem } from "../types";
+import { NewsItem } from "../types/types.ts";
 import "./home.css";
 
 interface HomeProps {
