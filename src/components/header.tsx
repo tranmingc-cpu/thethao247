@@ -1,4 +1,5 @@
 import React from "react";
+import { Link, useLocation } from "react-router-dom";
 import "./header.css";
 
 interface HeaderProps {
@@ -16,6 +17,8 @@ const Header: React.FC<HeaderProps> = ({
     onSearchChange,
     categories = []
 }) => {
+    const location = useLocation();
+
     return (
         <header className="header-wrapper">
             <div className="top-bar">
@@ -35,9 +38,9 @@ const Header: React.FC<HeaderProps> = ({
 
             <div className="header-main">
                 <div className="brand-wrapper">
-                    <a href="/" className="logo-badge">
+                    <Link to="/" className="logo-badge">
                         THỂ THAO <span>247</span>
-                    </a>
+                    </Link>
                     <span className="header-tagline">Mạng tin tức & Cộng đồng Thể thao số 1</span>
                 </div>
 
@@ -54,15 +57,31 @@ const Header: React.FC<HeaderProps> = ({
 
             <nav className="main-nav">
                 <div className="nav-container">
-                    <button
-                        type="button"
-                        className={`nav-item ${selectedCategory === "Tất cả" ? "active" : ""}`}
+                    <Link
+                        to="/"
+                        className={`nav-item ${location.pathname === "/" ? "active" : ""}`}
                         onClick={() => onSelectCategory("Tất cả")}
                     >
-                        <span className="nav-home-icon">🏠</span> TRANG CHỦ
-                    </button>
+                        ⚽ BÓNG ĐÁ (NGƯỜI 1)
+                    </Link>
 
-                    {categories.filter((c) => c !== "Tất cả").slice(0, 9).map((category) => (
+                    <Link
+                        to="/the-thao"
+                        className={`nav-item ${location.pathname.startsWith("/the-thao") ? "active" : ""}`}
+                        onClick={() => onSelectCategory("Tất cả")}
+                    >
+                        🏀 CÁC MÔN THỂ THAO (NGƯỜI 2)
+                    </Link>
+
+                    <Link
+                        to="/su-kien"
+                        className={`nav-item ${location.pathname.startsWith("/su-kien") ? "active" : ""}`}
+                        onClick={() => onSelectCategory("Tất cả")}
+                    >
+                        ⚡ SỰ KIỆN & CÔNG NGHỆ (NGƯỜI 3)
+                    </Link>
+
+                    {location.pathname === "/" && categories.filter((c) => c !== "Tất cả").slice(0, 5).map((category) => (
                         <button
                             type="button"
                             key={category}
@@ -79,4 +98,5 @@ const Header: React.FC<HeaderProps> = ({
 };
 
 export default Header;
+
 

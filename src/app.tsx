@@ -1,64 +1,69 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchNews, setSelectedCategory, setSearch, setSelectedArticle, RootState, AppDispatch } from "./pages/store";
+import {
+    setSelectedCategory,
+    setSearch,
+    setSelectedArticle,
+    fetchNews,
+    RootState,
+    AppDispatch
+} from "./pages/store";
 import Header from "./components/header";
 import Footer from "./components/footer";
 import Home from "./pages/home";
 import Detail from "./pages/detail";
-import SeaGames from "./pages/sea-games";
-import { NewsItem } from "./types";
-import { SPORTS } from "./config/sports";
-import {fetchSports} from "./pages/sportsSlice.ts";
-import SportsPage from "./pages/sports";
+import Sports from "./pages/sports/sports";
+import Events from "./pages/events/events";
+import { NewsItem } from "./types/types";
+import { FootBall } from "./config/football";
+import { getLiveCategoriesFromHomeRSS } from "./services/rssServices";
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
+    const navigate = useNavigate();
     const { items: news, loading, selectedCategory, search, selectedArticle } = useSelector(
         (state: RootState) => state.news
     );
-    const [view, setView] = useState<"news" | "sports">("news");
-    const sportsItems = useSelector((state: RootState) => state.sports.items);
+    const [dynamicCats, setDynamicCats] = useState<string[]>([]);
 
-    useEffect(() => { dispatch(fetchSports()); }, [dispatch]);
-    const sports = useSelector((s: RootState) => s.sports);
-    useEffect(() => { dispatch(fetchSports()); }, [dispatch]);
     useEffect(() => {
-        console.log("[SPORTS]", { loading: sports.loading, count: sports.items.length, error: sports.error });
-    }, [sports.loading, sports.items.length, sports.error]);
-    useEffect(() => {dispatch(fetchNews());}, [dispatch]);
-    const defaultNav = [
-        "Bóng đá Việt Nam",
-        "Bóng đá Quốc Tế",
-        "Bóng đá Anh",
-        "Champions League",
-        "Bóng chuyền",
-        "SEA Games 33",
-        "Quần vợt",
-        "Võ thuật",
-        "Esports"
-    ];
+        dispatch(fetchNews(FootBall));
+        getLiveCategoriesFromHomeRSS().then((cats) => {
+            if (cats && cats.length > 0) {
+                setDynamicCats(cats);
+            }
+        });
+    }, [dispatch]);
+
     const categories = useMemo(() => {
-        const setCats = new Set(news.map((item) => item.category).filter(Boolean));
-        const dynamicCats = Array.from(setCats);
-        return ["Tất cả", ...new Set([...defaultNav, ...dynamicCats])];
-    }, [news]);
+        const list = dynamicCats.length > 0 ? dynamicCats : FootBall.map((cat) => cat.name);
+        const filtered = list.filter((cat) => cat !== "Trang chủ / Tổng hợp");
+        return ["Tất cả", ...filtered];
+    }, [dynamicCats]);
+
     const handleSelectCategory = (category: string) => {
-        setView("news");
         dispatch(setSelectedCategory(category));
         dispatch(setSelectedArticle(null));
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
-    const handleSearchChange = (val: string) => {
-        dispatch(setSearch(val));
+
+    const handleSearchChange = (value: string) => {
+        dispatch(setSearch(value));
     };
+
     const handleArticleClick = (article: NewsItem) => {
         dispatch(setSelectedArticle(article));
+        navigate("/chi-tiet");
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
+
     const handleBackHome = () => {
         dispatch(setSelectedArticle(null));
+        navigate(-1);
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
+
     if (loading && news.length === 0) {
         return (
             <div className="loading-container">
@@ -67,6 +72,7 @@ const App: React.FC = () => {
             </div>
         );
     }
+
     return (
         <div className="thethao247-app">
             <Header
@@ -76,42 +82,63 @@ const App: React.FC = () => {
                 onSearchChange={handleSearchChange}
                 categories={categories}
             />
-            <div style={{ maxWidth: 1240, margin: "10px auto 0", padding: "0 15px", display: "flex", gap: 8 }}>
-                <button type="button" onClick={() => { setView("news"); dispatch(setSelectedArticle(null)); }}>
-                    Tin chung
-                </button>
-                <button type="button" onClick={() => { setView("sports"); dispatch(setSelectedArticle(null)); }}>
-                    Thể thao
-                </button>
-            </div>
-            {selectedArticle ? (
-                <Detail
-                    article={selectedArticle}
-                    onBack={handleBackHome}
-                    onSelectArticle={handleArticleClick}
-                    allNews={view === "sports" ? sportsItems : news}
+
+            <Routes>
+                <Route
+                    path="/"
+                    element={
+                        <Home
+                            news={news}
+                            selectedCategory={selectedCategory}
+                            onSelectCategory={handleSelectCategory}
+                            search={search}
+                            onArticleClick={handleArticleClick}
+                        />
+                    }
                 />
-            ) : selectedCategory.toLocaleLowerCase("vi-VN").includes("sea games") ||
-                selectedCategory.toLocaleLowerCase("vi-VN").includes("seagames") ? (
-                <SeaGames
-                    news={news}
-                    search={search}
-                    onArticleClick={handleArticleClick}
+                <Route
+                    path="/the-thao"
+                    element={
+                        <Sports
+                            search={search}
+                            onArticleClick={handleArticleClick}
+                        />
+                    }
                 />
-            ) : view === "sports" ? (
-                <SportsPage onArticleClick={handleArticleClick} />
-            ) : (
-                <Home
-                    news={news}
-                    selectedCategory={selectedCategory}
-                    onSelectCategory={handleSelectCategory}
-                    search={search}
-                    onArticleClick={handleArticleClick}
+                <Route
+                    path="/su-kien"
+                    element={
+                        <Events
+                            search={search}
+                            onArticleClick={handleArticleClick}
+                        />
+                    }
                 />
-            )}
+                <Route
+                    path="/chi-tiet"
+                    element={
+                        <Detail
+                            article={selectedArticle}
+                            onBack={handleBackHome}
+                            onSelectArticle={handleArticleClick}
+                            allNews={news}
+                        />
+                    }
+                />
+            </Routes>
+
             <Footer />
         </div>
     );
 };
+
+const App: React.FC = () => {
+    return (
+        <BrowserRouter>
+            <AppContent />
+        </BrowserRouter>
+    );
+};
+
 export default App;
 

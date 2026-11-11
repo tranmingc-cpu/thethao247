@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { getSportsNews } from "../../services/rssService";
 import { SPORTS } from "../config/sports";
-import { NewsItem } from "../types";
+import { NewsItem } from "../types/types.ts";
 
 export interface SportsState {
     items: NewsItem[];
