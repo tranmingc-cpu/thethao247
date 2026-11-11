@@ -12,6 +12,7 @@ const Footer: React.FC = () => {
                     <div className="footer-nav-decor"></div>
                 </div>
             </div>
+
             <div className="footer-sitemap">
                 <div className="footer-container">
                     <div className="footer-cols-grid">

@@ -32,11 +32,132 @@ button {
     font-family: inherit;
 }
 
-.ticker-bar {
-    max-width: 1240px;
-    margin: 14px auto 0;
-    padding: 0 15px;
+.football-filter-section {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
 }
+
+.football-leagues-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+    text-transform: uppercase;
+}
+
+.football-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pill-btn {
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+}
+
+.pill-btn:hover {
+    background: #e2e8f0;
+    border-color: #94a3b8;
+}
+
+.pill-btn.active {
+    background: #c8102e;
+    color: #ffffff;
+    border-color: #c8102e;
+    box-shadow: 0 2px 6px rgba(200, 16, 46, 0.25);
+}
+
+.football-sort-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sort-label {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.sort-buttons {
+    display: flex;
+    gap: 4px;
+    background: #f1f5f9;
+    padding: 3px;
+    border-radius: 6px;
+}
+
+.sort-btn {
+    border: none;
+    background: transparent;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 4px;
+    color: #475569;
+    transition: all 0.2s ease;
+}
+
+.sort-btn.active {
+    background: #ffffff;
+    color: #c8102e;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.search-status-banner {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+    padding: 10px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 13px;
+}
+
+.no-news-box {
+    padding: 40px 20px;
+    text-align: center;
+    color: #64748b;
+}
+
+.btn-reset-filter {
+    margin-top: 12px;
+    padding: 8px 16px;
+    background: #c8102e;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    transition: background 0.2s;
+}
+
+.btn-reset-filter:hover {
+    background: #a00c24;
+}
+
 
 .ticker-content {
     background: #fff;
@@ -62,19 +183,43 @@ button {
     flex-shrink: 0;
     letter-spacing: 0.5px;
 }
-
 .ticker-scroll {
-    flex: 1;
-    font-size: 13px;
-    color: #334155;
-    padding: 0 10px;
-    font-weight: 500;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
-.ticker-scroll a:hover {
-    color: var(--primary);
-    text-decoration: underline;
+.ticker-track {
+    display: inline-flex;
+    align-items: center;
+    gap: 35px;
+    width: max-content;
+    animation: tickerMove 35s linear infinite;
 }
+
+.ticker-item {
+    flex-shrink: 0;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.ticker-item:hover {
+    color: #c8102e;
+}
+
+.ticker-scroll:hover .ticker-track {
+    animation-play-state: paused;
+}
+
+@keyframes tickerMove {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(-100%);
+    }
+}
+
 
 .main-wrapper {
     max-width: 1240px;

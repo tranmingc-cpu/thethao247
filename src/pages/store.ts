@@ -1,6 +1,6 @@
 import { configureStore, createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { getAllRSSNews } from "../services/rssService";
-import { NewsItem } from "../types/types.ts";
+import { getAllRSSNews } from "../services/rssServices";
+import { NewsItem, RssCategory } from "../types/types";
 
 export interface NewsState {
     items: NewsItem[];
@@ -20,8 +20,11 @@ const initialState: NewsState = {
     search: ""
 };
 
-export const fetchNews = createAsyncThunk<NewsItem[]>("news/fetchNews", async () => {
-    return await getAllRSSNews();
+export const fetchNews = createAsyncThunk<
+    NewsItem[],
+    Pick<RssCategory, 'slug' | 'name' | 'rss'>[] | undefined
+>("news/fetchNews", async (categories) => {
+    return await getAllRSSNews(categories);
 });
 
 const newsSlice = createSlice({

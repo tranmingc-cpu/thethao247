@@ -14,7 +14,6 @@ export interface RssCategory {
     group: 'football' | 'sports' | 'tech-events';
     description?: string;
 }
-
 export interface Article {
     id: string;
     title: string;
@@ -24,6 +23,7 @@ export interface Article {
     pubDate: string;
     thumbnail?: string;
     categorySlug: string;
+    categoryName: string;
 }
 
 export interface ArticleFilterParams {

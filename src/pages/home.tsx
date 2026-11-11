@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { NewsItem } from "../types";
+import { NewsItem } from "../types/types";
+import { FootBall } from "../config/football";
 import "./home.css";
 
 interface HomeProps {
@@ -9,7 +10,6 @@ interface HomeProps {
     search: string;
     onArticleClick: (article: NewsItem) => void;
 }
-
 const Home: React.FC<HomeProps> = ({
     news,
     selectedCategory,
@@ -18,14 +18,50 @@ const Home: React.FC<HomeProps> = ({
     onArticleClick
 }) => {
     const [visibleCount, setVisibleCount] = useState<number>(10);
+    const [sortBy, setSortBy] = useState<'latest' | 'oldest'>('latest');
 
     const filteredNews = useMemo(() => {
-        return news.filter((item) => {
-            const matchCategory = selectedCategory === "Tất cả" || item.category === selectedCategory;
-            const matchSearch = item.title?.toLowerCase().includes(search.toLowerCase());
+        let result = news.filter((item) => {
+            let matchCategory = selectedCategory === "Tất cả";
+
+            if (!matchCategory) {
+                if (item.category === selectedCategory) {
+                    matchCategory = true;
+                } else if (selectedCategory === "Bóng đá Việt Nam") {
+                    const text = `${item.title} ${item.description} ${item.link}`.toLowerCase();
+                    matchCategory = text.includes('việt nam') || text.includes('-c1-') || text.includes('v-league') || text.includes('vff');
+                } else if (selectedCategory === "Ngoại hạng Anh") {
+                    const text = `${item.title} ${item.description} ${item.link}`.toLowerCase();
+                    matchCategory = text.includes('ngoại hạng anh') || text.includes('premier league') || text.includes('mu ') || text.includes('chelsea') || text.includes('arsenal') || text.includes('liverpool') || text.includes('man city') || text.includes('tottenham');
+                } else if (selectedCategory === "La Liga") {
+                    const text = `${item.title} ${item.description} ${item.link}`.toLowerCase();
+                    matchCategory = text.includes('la liga') || text.includes('real madrid') || text.includes('barcelona') || text.includes('barca');
+                } else if (selectedCategory === "Cúp C1 (Champions League)") {
+                    const text = `${item.title} ${item.description} ${item.link}`.toLowerCase();
+                    matchCategory = text.includes('cúp c1') || text.includes('champions league');
+                } else if (selectedCategory === "Chuyển nhượng") {
+                    const text = `${item.title} ${item.description} ${item.link}`.toLowerCase();
+                    matchCategory = text.includes('chuyển nhượng') || text.includes('chiêu mộ') || text.includes('hợp đồng');
+                }
+            }
+
+            const query = search.toLowerCase().trim();
+            const matchSearch =
+                !query ||
+                item.title?.toLowerCase().includes(query) ||
+                item.description?.toLowerCase().includes(query);
+
             return matchCategory && matchSearch;
         });
-    }, [news, selectedCategory, search]);
+
+        result.sort((a, b) => {
+            const timeA = new Date(a.pubDate || 0).getTime();
+            const timeB = new Date(b.pubDate || 0).getTime();
+            return sortBy === 'latest' ? timeB - timeA : timeA - timeB;
+        });
+
+        return result;
+    }, [news, selectedCategory, search, sortBy]);
 
     const mainHero = filteredNews[0];
     const subHero = filteredNews.slice(1, 3);
@@ -51,22 +87,73 @@ const Home: React.FC<HomeProps> = ({
                         <span>⚡ TIÊU ĐIỂM</span>
                     </div>
                     <div className="ticker-scroll">
-                        <marquee behavior="scroll" direction="left" scrollamount="6">
+                        <div className="ticker-track">
                             {news.slice(0, 8).map((item, idx) => (
-                                <span
-                                    key={item.id || idx}
-                                    style={{ marginRight: "35px", cursor: "pointer" }}
-                                    onClick={() => onArticleClick(item)}
-                                >
-                                    ⚽ {item.title}
-                                </span>
+                                <span key={item.id || idx}
+                                    className="ticker-item"
+                                    onClick={() => onArticleClick(item)}>
+                                      ⚽ {item.title}
+                                 </span>
                             ))}
-                        </marquee>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <main className="main-wrapper">
+                <section className="football-filter-section">
+                    <div className="football-leagues-bar">
+                        <span className="filter-title">⚽ Giải đấu:</span>
+                        <div className="football-pills">
+                            <button
+                                type="button"
+                                className={`pill-btn ${selectedCategory === "Tất cả" ? "active" : ""}`}
+                                onClick={() => onSelectCategory("Tất cả")}
+                            >
+                                Tất cả bóng đá
+                            </button>
+                            {FootBall.filter(c => c.slug !== "trang-chu").map((cat) => (
+                                <button
+                                    type="button"
+                                    key={cat.slug}
+                                    className={`pill-btn ${selectedCategory === cat.name ? "active" : ""}`}
+                                    onClick={() => onSelectCategory(cat.name)}
+                                >
+                                    {cat.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="football-sort-bar">
+                        <span className="sort-label">Sắp xếp:</span>
+                        <div className="sort-buttons">
+                            <button
+                                type="button"
+                                className={`sort-btn ${sortBy === 'latest' ? 'active' : ''}`}
+                                onClick={() => setSortBy('latest')}
+                            >
+                                Mới nhất ⬇
+                            </button>
+                            <button
+                                type="button"
+                                className={`sort-btn ${sortBy === 'oldest' ? 'active' : ''}`}
+                                onClick={() => setSortBy('oldest')}
+                            >
+                                Cũ nhất ⬆
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                {search.trim() && (
+                    <div className="search-status-banner">
+                        <span>
+                            🔍 Kết quả tìm kiếm cho: <strong>"{search}"</strong> (Tìm thấy <strong>{filteredNews.length}</strong> bài viết)
+                        </span>
+                    </div>
+                )}
+
                 {mainHero && (
                     <section className="hero-grid">
                         <article
@@ -86,7 +173,6 @@ const Home: React.FC<HomeProps> = ({
                                 <span className="hero-time">⏱ {formatDate(mainHero.pubDate)}</span>
                             </div>
                         </article>
-
                         <div className="hero-sub-list">
                             {subHero.map((item, idx) => (
                                 <article
@@ -141,7 +227,7 @@ const Home: React.FC<HomeProps> = ({
                     <div className="news-feed">
                         <div className="block-heading">
                             <h2 className="block-title">
-                                {selectedCategory === "Tất cả" ? "Dòng Sự Kiện Thể Thao Mới Nhất" : selectedCategory}
+                                {selectedCategory === "Tất cả" ? "Dòng Sự Kiện Bóng Đá Mới Nhất" : selectedCategory}
                             </h2>
                             <span className="block-meta">{filteredNews.length} bài viết</span>
                         </div>
