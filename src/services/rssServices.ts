@@ -217,7 +217,7 @@ export async function getLiveCategoriesFromHomeRSS(): Promise<string[]> {
             return dynamicCategories;
         }
     } catch {}
-    } 
+
     return [
         'Bóng đá Việt Nam',
         'Bóng đá quốc tế',
