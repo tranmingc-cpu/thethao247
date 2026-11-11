@@ -1,5 +1,5 @@
 import React from "react";
-import { NewsItem } from "../types";
+import { NewsItem } from "../types/types.ts";
 import "./detail.css";
 
 interface DetailProps {
