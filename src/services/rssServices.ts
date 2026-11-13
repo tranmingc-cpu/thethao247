@@ -228,3 +228,10 @@ export async function getLiveCategoriesFromHomeRSS(): Promise<string[]> {
     ];
 }
 
+export async function getSportsNews(
+    categories: Pick<RssCategory, 'slug' | 'name' | 'rss'>[] = ALL_CATEGORIES
+): Promise<NewsItem[]> {
+    return getAllRSSNews(categories);
+}
+
+

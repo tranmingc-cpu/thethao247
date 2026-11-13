@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { getSportsNews } from "../../services/rssService";
+import { getSportsNews } from "../services/rssServices";
 import { SPORTS } from "../config/sports";
 import { NewsItem } from "../types/types.ts";
 
@@ -7,7 +7,7 @@ export interface SportsState {
     items: NewsItem[];
     loading: boolean;
     error: string | null;
-    selectedSport: string; // "all" hoặc slug
+    selectedSport: string;
     search: string;
 }
 
