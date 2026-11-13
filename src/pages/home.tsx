@@ -11,12 +11,12 @@ interface HomeProps {
     onArticleClick: (article: NewsItem) => void;
 }
 const Home: React.FC<HomeProps> = ({
-    news,
-    selectedCategory,
-    onSelectCategory,
-    search,
-    onArticleClick
-}) => {
+                                       news,
+                                       selectedCategory,
+                                       onSelectCategory,
+                                       search,
+                                       onArticleClick
+                                   }) => {
     const [visibleCount, setVisibleCount] = useState<number>(10);
     const [sortBy, setSortBy] = useState<'latest' | 'oldest'>('latest');
 
@@ -84,15 +84,15 @@ const Home: React.FC<HomeProps> = ({
             <div className="ticker-bar">
                 <div className="ticker-content">
                     <div className="ticker-label">
-                        <span>⚡ TIÊU ĐIỂM</span>
+                        <span> TIÊU ĐIỂM</span>
                     </div>
                     <div className="ticker-scroll">
                         <div className="ticker-track">
                             {news.slice(0, 8).map((item, idx) => (
                                 <span key={item.id || idx}
-                                    className="ticker-item"
-                                    onClick={() => onArticleClick(item)}>
-                                      ⚽ {item.title}
+                                      className="ticker-item"
+                                      onClick={() => onArticleClick(item)}>
+                                      {item.title}
                                  </span>
                             ))}
                         </div>
@@ -103,7 +103,7 @@ const Home: React.FC<HomeProps> = ({
             <main className="main-wrapper">
                 <section className="football-filter-section">
                     <div className="football-leagues-bar">
-                        <span className="filter-title">⚽ Giải đấu:</span>
+                        <span className="filter-title"> Giải đấu:</span>
                         <div className="football-pills">
                             <button
                                 type="button"
@@ -149,7 +149,7 @@ const Home: React.FC<HomeProps> = ({
                 {search.trim() && (
                     <div className="search-status-banner">
                         <span>
-                            🔍 Kết quả tìm kiếm cho: <strong>"{search}"</strong> (Tìm thấy <strong>{filteredNews.length}</strong> bài viết)
+                            Kết quả tìm kiếm cho: <strong>"{search}"</strong> (Tìm thấy <strong>{filteredNews.length}</strong> bài viết)
                         </span>
                     </div>
                 )}
@@ -280,7 +280,7 @@ const Home: React.FC<HomeProps> = ({
 
                     <aside className="sidebar-wrapper">
                         <div className="sidebar-card">
-                            <h3 className="sidebar-title">🔥 Đọc Nhiều Nhất</h3>
+                            <h3 className="sidebar-title">Đọc Nhiều Nhất</h3>
                             <div className="trending-list">
                                 {trendingNews.map((item, index) => (
                                     <div
@@ -300,53 +300,53 @@ const Home: React.FC<HomeProps> = ({
                         </div>
 
                         <div className="sidebar-card">
-                            <h3 className="sidebar-title">🏆 BXH Ngoại Hạng Anh</h3>
+                            <h3 className="sidebar-title">BXH Ngoại Hạng Anh</h3>
                             <table className="widget-table">
                                 <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Đội</th>
-                                        <th>Trận</th>
-                                        <th>Đ</th>
-                                    </tr>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Đội</th>
+                                    <th>Trận</th>
+                                    <th>Đ</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td className="team-cell"><span className="team-badge">LIV</span> Liverpool</td>
-                                        <td>26</td>
-                                        <td><strong>60</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td className="team-cell"><span className="team-badge">ARS</span> Arsenal</td>
-                                        <td>26</td>
-                                        <td><strong>53</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>3</td>
-                                        <td className="team-cell"><span className="team-badge">MCI</span> Man City</td>
-                                        <td>26</td>
-                                        <td><strong>50</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>4</td>
-                                        <td className="team-cell"><span className="team-badge">CHE</span> Chelsea</td>
-                                        <td>26</td>
-                                        <td><strong>46</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>5</td>
-                                        <td className="team-cell"><span className="team-badge">MUN</span> Man United</td>
-                                        <td>26</td>
-                                        <td><strong>42</strong></td>
-                                    </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td className="team-cell"><span className="team-badge">LIV</span> Liverpool</td>
+                                    <td>26</td>
+                                    <td><strong>60</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td className="team-cell"><span className="team-badge">ARS</span> Arsenal</td>
+                                    <td>26</td>
+                                    <td><strong>53</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td className="team-cell"><span className="team-badge">MCI</span> Man City</td>
+                                    <td>26</td>
+                                    <td><strong>50</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td className="team-cell"><span className="team-badge">CHE</span> Chelsea</td>
+                                    <td>26</td>
+                                    <td><strong>46</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td className="team-cell"><span className="team-badge">MUN</span> Man United</td>
+                                    <td>26</td>
+                                    <td><strong>42</strong></td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
 
                         <div className="sidebar-card">
-                            <h3 className="sidebar-title">⏱ Tâm Điểm Trận Đấu</h3>
+                            <h3 className="sidebar-title"> Tâm Điểm Trận Đấu</h3>
                             <div style={{ fontSize: "13px", display: "flex", flexDirection: "column", gap: "10px" }}>
                                 <div style={{ background: "#f8fafc", padding: "10px", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
                                     <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "4px" }}>V-League • 19:15</div>
@@ -374,4 +374,3 @@ const Home: React.FC<HomeProps> = ({
 };
 
 export default Home;
-
