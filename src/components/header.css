@@ -53,6 +53,19 @@
     gap: 12px;
 }
 
+.logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.header-logo-img {
+    height: 44px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+}
+
 .logo-badge {
     background: #c8102e;
     color: #fff;

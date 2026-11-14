@@ -1,7 +1,6 @@
 import React from "react";
 import { NewsItem } from "../types/types.ts";
 import "./detail.css";
-
 interface DetailProps {
     article: NewsItem | null;
     onBack: () => void;
@@ -24,10 +23,8 @@ const Detail: React.FC<DetailProps> = ({ article, onBack, onSelectArticle, allNe
             (item) =>
                 item.id !== article.id &&
                 item.link !== article.link &&
-                (!article.category || item.category === article.category)
-        )
+                (!article.category || item.category === article.category))
         .slice(0, 3);
-
     function formatDate(date: string | null) {
         if (!date) return "Vừa xong";
         try {
@@ -37,7 +34,6 @@ const Detail: React.FC<DetailProps> = ({ article, onBack, onSelectArticle, allNe
             return "Mới cập nhật";
         }
     }
-
     return (
         <div className="detail-wrapper">
             <div className="breadcrumb">
@@ -45,7 +41,6 @@ const Detail: React.FC<DetailProps> = ({ article, onBack, onSelectArticle, allNe
                 <span>/</span>
                 <span>{article.category || "Tin thể thao"}</span>
             </div>
-
             <div className="detail-layout">
                 <article className="detail-main">
                     <span className="detail-category-tag">{article.category || "Tin nóng"}</span>
@@ -55,31 +50,26 @@ const Detail: React.FC<DetailProps> = ({ article, onBack, onSelectArticle, allNe
                         <span>•</span>
                         <span>Nguồn: Thể Thao 247</span>
                     </div>
-
                     {article.description && (
                         <div className="detail-sapo">
                             {article.description}
                         </div>
                     )}
-
                     {article.image && (
                         <div className="detail-cover">
                             <img src={article.image} alt={article.title} />
                         </div>
                     )}
-
                     <div className="detail-content">
                         <p>{article.description}</p>
                         <p>Theo dõi các diễn biến thể thao mới nhất trong ngày trên hệ thống thể thao trực tuyến. Mọi thông tin chuyển nhượng, kết quả thi đấu, bảng xếp hạng luôn được cập nhật chính xác và đầy đủ nhất theo thời gian thực.</p>
                     </div>
-
                     <div className="detail-original-link">
                         <span>Bài viết được lấy từ RSS Thethao247</span>
                         <a href={article.link} target="_blank" rel="noreferrer">
                             Xem bài gốc trên TheThao247.vn ↗
                         </a>
                     </div>
-
                     {relatedNews.length > 0 && (
                         <div className="related-section">
                             <h3 className="related-title">Tin cùng chuyên mục</h3>
@@ -91,12 +81,10 @@ const Detail: React.FC<DetailProps> = ({ article, onBack, onSelectArticle, allNe
                                         onClick={() => {
                                             onSelectArticle(item);
                                             window.scrollTo({ top: 0, behavior: "smooth" });
-                                        }}
-                                    >
+                                        }}>
                                         <div className="related-thumb">
                                             {item.image ? (
-                                                <img src={item.image} alt={item.title} />
-                                            ) : (
+                                                <img src={item.image} alt={item.title} />) : (
                                                 <div className="no-image">THỂ THAO 247</div>
                                             )}
                                         </div>
@@ -107,10 +95,9 @@ const Detail: React.FC<DetailProps> = ({ article, onBack, onSelectArticle, allNe
                         </div>
                     )}
                 </article>
-
                 <aside className="sidebar-wrapper">
                     <div className="sidebar-card">
-                        <h3 className="sidebar-title">🔥 Tin Đọc Nhiều</h3>
+                        <h3 className="sidebar-title"> Tin Đọc Nhiều</h3>
                         <div className="trending-list">
                             {allNews.slice(0, 5).map((item, index) => (
                                 <div
@@ -120,8 +107,7 @@ const Detail: React.FC<DetailProps> = ({ article, onBack, onSelectArticle, allNe
                                     onClick={() => {
                                         onSelectArticle(item);
                                         window.scrollTo({ top: 0, behavior: "smooth" });
-                                    }}
-                                >
+                                    }}>
                                     <span className="trending-rank">0{index + 1}</span>
                                     <div className="trending-content">
                                         <h4>{item.title}</h4>
@@ -136,6 +122,5 @@ const Detail: React.FC<DetailProps> = ({ article, onBack, onSelectArticle, allNe
         </div>
     );
 };
-
 export default Detail;
 
