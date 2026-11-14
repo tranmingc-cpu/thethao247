@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import logoImg from "../assets/logo.png";
 import "./header.css";
 
 interface HeaderProps {
@@ -9,7 +10,6 @@ interface HeaderProps {
     onSearchChange: (value: string) => void;
     categories?: string[];
 }
-
 const Header: React.FC<HeaderProps> = ({
     selectedCategory,
     onSelectCategory,
@@ -18,13 +18,12 @@ const Header: React.FC<HeaderProps> = ({
     categories = []
 }) => {
     const location = useLocation();
-
     return (
         <header className="header-wrapper">
             <div className="top-bar">
                 <div className="top-bar-container">
                     <div className="top-bar-left">
-                        <span>📅 {new Date().toLocaleDateString("vi-VN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</span>
+                        <span>{new Date().toLocaleDateString("vi-VN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</span>
                         <span>•</span>
                         <span>Tin nhanh thể thao 24/7 liên tục cập nhật</span>
                     </div>
@@ -35,15 +34,13 @@ const Header: React.FC<HeaderProps> = ({
                     </div>
                 </div>
             </div>
-
             <div className="header-main">
                 <div className="brand-wrapper">
-                    <Link to="/" className="logo-badge">
-                        THỂ THAO <span>247</span>
+                    <Link to="/" className="logo-link">
+                        <img src={logoImg} alt="Logo Thể Thao 247" className="header-logo-img" />
                     </Link>
                     <span className="header-tagline">Mạng tin tức & Cộng đồng Thể thao số 1</span>
                 </div>
-
                 <div className="header-search">
                     <input
                         type="text"
@@ -51,10 +48,9 @@ const Header: React.FC<HeaderProps> = ({
                         value={search}
                         onChange={(e) => onSearchChange(e.target.value)}
                     />
-                    <button type="button" title="Tìm kiếm">🔍</button>
+                    <button type="button" title="Tìm kiếm">Tìm kiếm</button>
                 </div>
             </div>
-
             <nav className="main-nav">
                 <div className="nav-container">
                     <Link
@@ -62,26 +58,30 @@ const Header: React.FC<HeaderProps> = ({
                         className={`nav-item ${location.pathname === "/" ? "active" : ""}`}
                         onClick={() => onSelectCategory("Tất cả")}
                     >
-                        ⚽ BÓNG ĐÁ (NGƯỜI 1)
+                        TRANG CHỦ
                     </Link>
-
+                    <Link
+                        to="/bong-da"
+                        className={`nav-item ${location.pathname.startsWith("/bong-da") ? "active" : ""}`}
+                        onClick={() => onSelectCategory("Tất cả")}
+                    >
+                        BÓNG ĐÁ
+                    </Link>
                     <Link
                         to="/the-thao"
                         className={`nav-item ${location.pathname.startsWith("/the-thao") ? "active" : ""}`}
                         onClick={() => onSelectCategory("Tất cả")}
                     >
-                        🏀 CÁC MÔN THỂ THAO (NGƯỜI 2)
+                        CÁC MÔN THỂ THAO
                     </Link>
-
                     <Link
                         to="/su-kien"
                         className={`nav-item ${location.pathname.startsWith("/su-kien") ? "active" : ""}`}
                         onClick={() => onSelectCategory("Tất cả")}
                     >
-                        ⚡ SỰ KIỆN & CÔNG NGHỆ (NGƯỜI 3)
+                        SỰ KIỆN & CÔNG NGHỆ
                     </Link>
-
-                    {location.pathname === "/" && categories.filter((c) => c !== "Tất cả").slice(0, 5).map((category) => (
+                    {(location.pathname === "/" || location.pathname.startsWith("/bong-da")) && categories.filter((c) => c !== "Tất cả").slice(0, 5).map((category) => (
                         <button
                             type="button"
                             key={category}
@@ -96,7 +96,6 @@ const Header: React.FC<HeaderProps> = ({
         </header>
     );
 };
-
 export default Header;
 
 

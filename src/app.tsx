@@ -12,6 +12,7 @@ import {
 import Header from "./components/header";
 import Footer from "./components/footer";
 import Home from "./pages/home";
+import Football from "./pages/football/football";
 import Detail from "./pages/detail";
 import Sports from "./pages/sports/sports";
 import Events from "./pages/events/events";
@@ -88,6 +89,15 @@ const AppContent: React.FC = () => {
                     path="/"
                     element={
                         <Home
+                            search={search}
+                            onArticleClick={handleArticleClick}
+                        />
+                    }
+                />
+                <Route
+                    path="/bong-da"
+                    element={
+                        <Football
                             news={news}
                             selectedCategory={selectedCategory}
                             onSelectCategory={handleSelectCategory}
