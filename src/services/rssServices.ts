@@ -31,19 +31,49 @@ function extractThumbnail(itemNode: Element, description: string): string {
     return match ? match[1] : '';
 }
 
+function getItemNodes(xmlText: string): Element[] {
+    const parser = new DOMParser();
+    const wrap = (s: string) =>
+        `<?xml version="1.0" encoding="utf-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/"><channel>${s}</channel></rss>`;
+    const hasError = (s: string) =>
+        !!parser.parseFromString(wrap(s), 'text/xml').querySelector('parsererror');
+
+    const whole = parser.parseFromString(xmlText, 'text/xml');
+    if (!whole.querySelector('parsererror')) return Array.from(whole.querySelectorAll('item'));
+
+    const good: string[] = [];
+    (xmlText.match(/<item>[\s\S]*?<\/item>/g) || []).forEach((raw) => {
+        if (!hasError(raw)) { good.push(raw); return; }
+        const fixed = raw.replace('</description>', ']]></description>');
+        if (!hasError(fixed)) good.push(fixed);
+    });
+    console.warn(`RSS lỗi, giữ ${good.length} bài hợp lệ`);
+    return Array.from(parser.parseFromString(wrap(good.join('')), 'text/xml').querySelectorAll('item'));
+}
+
+async function fetchFeedText(rssUrl: string): Promise<string> {
+    const tryFetch = async (url: string) => {
+        const res = await fetch(url);
+        const text = await res.text();
+        const isXml = text.trimStart().startsWith('<?xml') || text.includes('<rss');
+        return res.ok && isXml ? text : null;
+    };
+
+    const direct = await tryFetch(getFeedProxyUrl(rssUrl));
+    if (direct) return direct;
+
+    console.warn('Proxy Vite bị chặn, thử proxy dự phòng:', rssUrl);
+    const backup = await tryFetch('https://proxy.cors.dev/' + rssUrl);
+    return backup ?? '';
+}
+
 export async function fetchArticlesFromCategory(
     category: Pick<RssCategory, 'slug' | 'name' | 'rss'>
 ): Promise<Article[]> {
-    const targetUrl = getFeedProxyUrl(category.rss);
     try {
-        const res = await fetch(targetUrl);
-        if (!res.ok) {
-            return [];
-        }
-
-        const xmlText = await res.text();
-        const xmlDoc = parseXmlText(xmlText);
-        const items = Array.from(xmlDoc.querySelectorAll('item'));
+        const xmlText = await fetchFeedText(category.rss);
+        if (!xmlText) return [];
+        const items = getItemNodes(xmlText);
 
         if (items.length === 0) return [];
 
@@ -54,7 +84,8 @@ export async function fetchArticlesFromCategory(
             const rawDesc = getNodeText(item, 'description');
             const cleanDesc = rawDesc.replace(/<[^>]*>?/gm, '').trim();
             const pubDateStr = getNodeText(item, 'pubDate');
-            const pubDate = pubDateStr ? new Date(pubDateStr).toISOString() : new Date().toISOString();
+            const t = Date.parse(pubDateStr);
+            const pubDate = Number.isNaN(t) ? new Date(0).toISOString() : new Date(t).toISOString();
             const thumbnail = extractThumbnail(item, rawDesc);
             const slug = link ? link.split('/').filter(Boolean).pop() || '' : '';
 
@@ -70,7 +101,8 @@ export async function fetchArticlesFromCategory(
                 categoryName: category.name
             };
         });
-    } catch {
+    } catch (e) {
+        console.warn('RSS exception:', category.name, e);
         return [];
     }
 }

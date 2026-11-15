@@ -13,7 +13,8 @@ import Header from "./components/header";
 import Footer from "./components/footer";
 import Home from "./pages/home";
 import Detail from "./pages/detail";
-import Sports from "./pages/sports/sports";
+import SportsHome from "./pages/sports/SportsHome.tsx";
+import SportDetail from "./pages/sports/SportDetail";
 import Events from "./pages/events/events";
 import { NewsItem } from "./types/types";
 import { FootBall } from "./config/football";
@@ -99,7 +100,7 @@ const AppContent: React.FC = () => {
                 <Route
                     path="/the-thao"
                     element={
-                        <Sports
+                        <SportsHome
                             search={search}
                             onArticleClick={handleArticleClick}
                         />
@@ -122,6 +123,24 @@ const AppContent: React.FC = () => {
                             onBack={handleBackHome}
                             onSelectArticle={handleArticleClick}
                             allNews={news}
+                        />
+                    }
+                />
+                <Route
+                    path="/the-thao"
+                    element={
+                        <SportsHome
+                            search={search}
+                            onArticleClick={handleArticleClick}
+                        />
+                    }
+                />
+                <Route
+                    path="/the-thao/:slug"
+                    element={
+                        <SportDetail
+                            search={search}
+                            onArticleClick={handleArticleClick}
                         />
                     }
                 />
