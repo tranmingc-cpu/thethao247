@@ -66,7 +66,7 @@ const Events: React.FC<EventsProps> = ({ search, onArticleClick }) => {
         <div className="main-wrapper">
             <section className="football-filter-section">
                 <div className="football-leagues-bar">
-                    <span className="filter-title">⚡ Sự kiện & Công nghệ:</span>
+                    <span className="filter-title">Sự kiện & Công nghệ:</span>
                     <div className="football-pills">
                         <button
                             type="button"
@@ -96,14 +96,14 @@ const Events: React.FC<EventsProps> = ({ search, onArticleClick }) => {
                             className={`sort-btn ${sortBy === 'latest' ? 'active' : ''}`}
                             onClick={() => setSortBy('latest')}
                         >
-                            Mới nhất ⬇
+                            Mới nhất
                         </button>
                         <button
                             type="button"
                             className={`sort-btn ${sortBy === 'oldest' ? 'active' : ''}`}
                             onClick={() => setSortBy('oldest')}
                         >
-                            Cũ nhất ⬆
+                            Cũ nhất
                         </button>
                     </div>
                 </div>
@@ -112,7 +112,7 @@ const Events: React.FC<EventsProps> = ({ search, onArticleClick }) => {
             {search.trim() && (
                 <div className="search-status-banner">
                     <span>
-                        🔍 Tìm kiếm sự kiện/công nghệ cho: <strong>"{search}"</strong> (Tìm thấy <strong>{filteredNews.length}</strong> bài viết)
+                        Kết quả tìm kiếm cho: <strong>"{search}"</strong> (Tìm thấy <strong>{filteredNews.length}</strong> bài viết)
                     </span>
                 </div>
             )}

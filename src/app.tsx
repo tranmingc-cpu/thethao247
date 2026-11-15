@@ -12,6 +12,7 @@ import {
 import Header from "./components/header";
 import Footer from "./components/footer";
 import Home from "./pages/home";
+import Football from "./pages/football/football";
 import Detail from "./pages/detail";
 import SportsHome from "./pages/sports/SportsHome.tsx";
 import SportDetail from "./pages/sports/SportDetail";
@@ -89,6 +90,15 @@ const AppContent: React.FC = () => {
                     path="/"
                     element={
                         <Home
+                            search={search}
+                            onArticleClick={handleArticleClick}
+                        />
+                    }
+                />
+                <Route
+                    path="/bong-da"
+                    element={
+                        <Football
                             news={news}
                             selectedCategory={selectedCategory}
                             onSelectCategory={handleSelectCategory}
@@ -160,4 +170,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-

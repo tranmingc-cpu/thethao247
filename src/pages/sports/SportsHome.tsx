@@ -67,7 +67,7 @@ const SportsHome: React.FC<SportsProps> = ({ search, onArticleClick }) => {
         <div className="main-wrapper">
             <section className="football-filter-section">
                 <div className="football-leagues-bar">
-                    <span className="filter-title">🏀 Môn thể thao:</span>
+                    <span className="filter-title">Môn thể thao:</span>
                     <div className="football-pills">
                         <button
                             type="button"
@@ -97,14 +97,14 @@ const SportsHome: React.FC<SportsProps> = ({ search, onArticleClick }) => {
                             className={`sort-btn ${sortBy === 'latest' ? 'active' : ''}`}
                             onClick={() => setSortBy('latest')}
                         >
-                            Mới nhất ⬇
+                            Mới nhất
                         </button>
                         <button
                             type="button"
                             className={`sort-btn ${sortBy === 'oldest' ? 'active' : ''}`}
                             onClick={() => setSortBy('oldest')}
                         >
-                            Cũ nhất ⬆
+                            Cũ nhất
                         </button>
                     </div>
                 </div>
@@ -121,7 +121,7 @@ const SportsHome: React.FC<SportsProps> = ({ search, onArticleClick }) => {
             {search.trim() && (
                 <div className="search-status-banner">
                     <span>
-                        🔍 Tìm kiếm thể thao cho: <strong>"{search}"</strong> (Tìm thấy <strong>{filteredNews.length}</strong> bài viết)
+                        Kết quả tìm kiếm cho: <strong>"{search}"</strong> (Tìm thấy <strong>{filteredNews.length}</strong> bài viết)
                     </span>
                 </div>
             )}

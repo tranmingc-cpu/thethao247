@@ -20,15 +20,24 @@ function getNodeText(parent: Element, tagName: string): string {
 }
 
 function extractThumbnail(itemNode: Element, description: string): string {
+    let rawUrl = '';
     const enclosure = itemNode.getElementsByTagName('enclosure')[0];
     if (enclosure && enclosure.getAttribute('url')) {
-        return enclosure.getAttribute('url') || '';
+        rawUrl = enclosure.getAttribute('url') || '';
     }
 
-    const contentEncoded = itemNode.getElementsByTagName('content:encoded')[0]?.textContent || '';
-    const htmlToSearch = `${description} ${contentEncoded}`;
-    const match = htmlToSearch.match(/<img[^>]+src=["']([^"']+)["']/i);
-    return match ? match[1] : '';
+    if (!rawUrl) {
+        const contentEncoded = itemNode.getElementsByTagName('content:encoded')[0]?.textContent || '';
+        const htmlToSearch = `${description} ${contentEncoded}`;
+        const match = htmlToSearch.match(/<img[^>]+src=["']([^"']+)["']/i);
+        rawUrl = match ? match[1] : '';
+    }
+
+    if (rawUrl) {
+        return rawUrl.replace(/\/resize_\d+x\d+\//i, '/resize_480x270/');
+    }
+
+    return '';
 }
 
 function getItemNodes(xmlText: string): Element[] {
@@ -259,4 +268,11 @@ export async function getLiveCategoriesFromHomeRSS(): Promise<string[]> {
         'Chuyển nhượng'
     ];
 }
+
+export async function getSportsNews(
+    categories: Pick<RssCategory, 'slug' | 'name' | 'rss'>[] = ALL_CATEGORIES
+): Promise<NewsItem[]> {
+    return getAllRSSNews(categories);
+}
+
 
