@@ -1,13 +1,29 @@
 import { Article, RssCategory, NewsItem } from '../types/types';
 import { ALL_CATEGORIES } from '../config/categories';
 
+
 function getFeedProxyUrl(rssUrl: string): string {
     if (typeof window !== 'undefined') {
         const urlObj = new URL(rssUrl);
+
+        const localFeeds: Record<string, string> = {
+            '/asian-cup-2027-c176.rss': '/rss/asian-cup-2027-c176.rss',
+            '/asian-cup-c16.rss': '/rss/asian-cup-2027-c176.rss',
+            '/olympic-c199.rss': '/rss/olympic-c199.rss',
+            '/u23-chau-a-c281.rss': '/rss/u23-chau-a-c281.rss',
+            '/cong-nghe-c344.rss': '/rss/cong-nghe-c344.rss'
+        };
+
+        if (localFeeds[urlObj.pathname]) {
+            return localFeeds[urlObj.pathname];
+        }
+
         return `/api-rss${urlObj.pathname}`;
     }
+
     return rssUrl;
 }
+
 
 function parseXmlText(xmlText: string): Document {
     const parser = new DOMParser();
@@ -20,15 +36,24 @@ function getNodeText(parent: Element, tagName: string): string {
 }
 
 function extractThumbnail(itemNode: Element, description: string): string {
+    let rawUrl = '';
     const enclosure = itemNode.getElementsByTagName('enclosure')[0];
     if (enclosure && enclosure.getAttribute('url')) {
-        return enclosure.getAttribute('url') || '';
+        rawUrl = enclosure.getAttribute('url') || '';
     }
 
-    const contentEncoded = itemNode.getElementsByTagName('content:encoded')[0]?.textContent || '';
-    const htmlToSearch = `${description} ${contentEncoded}`;
-    const match = htmlToSearch.match(/<img[^>]+src=["']([^"']+)["']/i);
-    return match ? match[1] : '';
+    if (!rawUrl) {
+        const contentEncoded = itemNode.getElementsByTagName('content:encoded')[0]?.textContent || '';
+        const htmlToSearch = `${description} ${contentEncoded}`;
+        const match = htmlToSearch.match(/<img[^>]+src=["']([^"']+)["']/i);
+        rawUrl = match ? match[1] : '';
+    }
+
+    if (rawUrl) {
+        return rawUrl.replace(/\/resize_\d+x\d+\//i, '/resize_480x270/');
+    }
+
+    return '';
 }
 
 export async function fetchArticlesFromCategory(
@@ -227,4 +252,11 @@ export async function getLiveCategoriesFromHomeRSS(): Promise<string[]> {
         'Chuyển nhượng'
     ];
 }
+
+export async function getSportsNews(
+    categories: Pick<RssCategory, 'slug' | 'name' | 'rss'>[] = ALL_CATEGORIES
+): Promise<NewsItem[]> {
+    return getAllRSSNews(categories);
+}
+
 
