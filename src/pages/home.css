@@ -639,6 +639,113 @@ button {
     color: #94a3b8;
 }
 
+.widget-header-tabs {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+}
+
+.widget-header-tabs .sidebar-title {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.widget-tab-buttons {
+    display: flex;
+    gap: 4px;
+    background: #f1f5f9;
+    padding: 2px;
+    border-radius: 6px;
+}
+
+.widget-tab-btn {
+    border: none;
+    background: transparent;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.widget-tab-btn:hover {
+    color: var(--primary);
+}
+
+.widget-tab-btn.active {
+    background: #ffffff;
+    color: var(--primary-dark);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.matches-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.match-item-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 10px 12px;
+    transition: border-color 0.2s;
+}
+
+.match-item-card:hover {
+    border-color: #cbd5e1;
+}
+
+.match-item-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #64748b;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.match-item-teams {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.match-team {
+    flex: 1;
+}
+
+.match-team.home {
+    text-align: left;
+}
+
+.match-team.away {
+    text-align: right;
+}
+
+.match-score-pill {
+    padding: 2px 8px;
+    font-size: 11.5px;
+    font-weight: 800;
+    color: var(--primary-dark);
+    background: #e0f2fe;
+    border-radius: 4px;
+    margin: 0 8px;
+}
+
+.match-score-pill.completed {
+    background: #dcfce7;
+    color: #15803d;
+}
+
 .widget-table {
     width: 100%;
     border-collapse: collapse;
