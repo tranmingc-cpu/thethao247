@@ -1,13 +1,29 @@
 import { Article, RssCategory, NewsItem } from '../types/types';
 import { ALL_CATEGORIES } from '../config/categories';
 
+
 function getFeedProxyUrl(rssUrl: string): string {
     if (typeof window !== 'undefined') {
         const urlObj = new URL(rssUrl);
+
+        const localFeeds: Record<string, string> = {
+            '/asian-cup-2027-c176.rss': '/rss/asian-cup-2027-c176.rss',
+            '/asian-cup-c16.rss': '/rss/asian-cup-2027-c176.rss',
+            '/olympic-c199.rss': '/rss/olympic-c199.rss',
+            '/u23-chau-a-c281.rss': '/rss/u23-chau-a-c281.rss',
+            '/cong-nghe-c344.rss': '/rss/cong-nghe-c344.rss'
+        };
+
+        if (localFeeds[urlObj.pathname]) {
+            return localFeeds[urlObj.pathname];
+        }
+
         return `/api-rss${urlObj.pathname}`;
     }
+
     return rssUrl;
 }
+
 
 function parseXmlText(xmlText: string): Document {
     const parser = new DOMParser();
