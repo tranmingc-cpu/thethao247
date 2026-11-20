@@ -3,13 +3,14 @@ import { SPORTS } from '../../config/sports';
 import { getAllRSSNews } from '../../services/rssServices';
 import { NewsItem } from '../../types/types';
 import '../home.css';
+import { Link } from 'react-router-dom';
 
 interface SportsProps {
     search: string;
     onArticleClick: (article: NewsItem) => void;
 }
 
-const Sports: React.FC<SportsProps> = ({ search, onArticleClick }) => {
+const SportsHome: React.FC<SportsProps> = ({ search, onArticleClick }) => {
     const [news, setNews] = useState<NewsItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [selectedSport, setSelectedSport] = useState<string>('Tất cả');
@@ -107,6 +108,14 @@ const Sports: React.FC<SportsProps> = ({ search, onArticleClick }) => {
                         </button>
                     </div>
                 </div>
+                {selectedSport !== 'Tất cả' && (
+                    <Link
+                        to={`/the-thao/${SPORTS.find((s) => s.name === selectedSport)?.slug}`}
+                        style={{ color: '#c8102e', fontWeight: 700, fontSize: 13 }}
+                    >
+                        Xem trang riêng của {selectedSport} →
+                    </Link>
+                )}
             </section>
 
             {search.trim() && (
@@ -164,5 +173,5 @@ const Sports: React.FC<SportsProps> = ({ search, onArticleClick }) => {
     );
 };
 
-export default Sports;
+export default SportsHome;
 
