@@ -106,6 +106,21 @@ const Football: React.FC<FootballProps> = ({
     function formatDate(date: string | null) {
         if (!date) return "Vừa xong";
         try {
+            const now = Date.now();
+            const past = new Date(date).getTime();
+            const diffMs = now - past;
+            if (diffMs < 0 || isNaN(diffMs)) return "Vừa xong";
+
+            const diffMins = Math.floor(diffMs / (1000 * 60));
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+            if (diffMins < 1) return "Vừa xong";
+            if (diffMins < 60) return `${diffMins} phút trước`;
+            if (diffHours < 24) return `${diffHours} giờ trước`;
+            if (diffDays === 1) return "Hôm qua";
+            if (diffDays < 7) return `${diffDays} ngày trước`;
+
             const d = new Date(date);
             return `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")} - ${d.toLocaleDateString("vi-VN")}`;
         } catch {
