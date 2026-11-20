@@ -33,3 +33,13 @@ export interface ArticleFilterParams {
     limit?: number;
     page?: number;
 }
+
+export interface User {
+    id: string;
+    username: string;
+    email: string;
+    password?: string;
+    fullName?: string;
+    createdAt: string;
+}
+
