@@ -97,6 +97,82 @@
     font-weight: 500;
 }
 
+.header-actions-area {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-user-box {
+    display: flex;
+    align-items: center;
+}
+
+.btn-login-header {
+    background: #0284c7;
+    color: #ffffff;
+    border: none;
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.btn-login-header:hover {
+    background: #0369a1;
+}
+
+.user-profile-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    padding: 4px 10px 4px 6px;
+    border-radius: 20px;
+}
+
+.user-avatar-circle {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #0284c7;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.user-display-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.btn-logout-small {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 4px;
+    padding: 2px 4px;
+}
+
+.btn-logout-small:hover {
+    text-decoration: underline;
+}
+
 .header-search {
     display: flex;
     align-items: center;
