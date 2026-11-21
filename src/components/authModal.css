@@ -122,3 +122,25 @@
 .auth-submit-btn:hover {
     background: #0369a1;
 }
+
+.auth-field-error {
+    font-size: 12px;
+    color: #dc2626;
+}
+
+.auth-checklist {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.auth-checklist li.ok {
+    color: #16a34a;
+}
+
+.auth-submit-btn:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+}

@@ -1,68 +1,85 @@
 import { User } from '../types/types';
+import { validateUsername, validateEmail, validatePassword } from './authValidation';
 
 const USERS_KEY = 'users';
 const CURRENT_USER_KEY = 'currentUser';
 
-export function getUsers(): User[] {
+type AuthResult = { success: boolean; message: string; user?: User };
+
+async function hashPassword(password: string, salt: string): Promise<string> {
+    const data = new TextEncoder().encode(salt + password);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+function readStorage<T>(key: string, fallback: T): T {
     try {
-        const data = localStorage.getItem(USERS_KEY);
-        return data ? JSON.parse(data) : [];
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : fallback;
     } catch {
-        return [];
+        return fallback;
     }
 }
-export function getCurrentUser(): User | null {
-    try {
-        const data = localStorage.getItem(CURRENT_USER_KEY);
-        return data ? JSON.parse(data) : null;
-    } catch {
-        return null;
-    }
-}
-export function registerUser(user: { username: string; email: string; password?: string; fullName?: string }): { success: boolean; message: string; user?: User } {
-    const users = getUsers();
-    const usernameClean = user.username.trim().toLowerCase();
-    const emailClean = user.email.trim().toLowerCase();
 
-    if (users.some(u => u.username.toLowerCase() === usernameClean)) {
-        return { success: false, message: 'Tên đăng nhập đã tồn tại' };
-    }
-    if (users.some(u => u.email.toLowerCase() === emailClean)) {
-        return { success: false, message: 'Email đã được đăng ký' };
-    }
-    const newUser: User = {
-        id: `user_${Date.now()}`,
-        username: user.username.trim(),
-        email: user.email.trim(),
-        password: user.password || '',
-        fullName: user.fullName?.trim() || user.username.trim(),
-        createdAt: new Date().toISOString()
-    };
-    users.push(newUser);
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    const { password, ...safeUser } = newUser;
+function startSession(user: User): AuthResult {
+    const { passwordHash, salt, ...safeUser } = user;
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(safeUser));
-    return { success: true, message: 'Đăng ký thành công', user: safeUser };
+    return { success: true, message: 'Thành công', user: safeUser };
 }
-export function loginUser(usernameOrEmail: string, password?: string): { success: boolean; message: string; user?: User } {
-    const users = getUsers();
-    const query = usernameOrEmail.trim().toLowerCase();
 
-    const targetUser = users.find(u =>
-        u.username.toLowerCase() === query || u.email.toLowerCase() === query
-    );
-    if (!targetUser) {
-        return { success: false, message: 'Tài khoản không tồn tại' };
-    }
+export const getCurrentUser = (): User | null => readStorage<User | null>(CURRENT_USER_KEY, null);
 
-    if (password && targetUser.password && targetUser.password !== password) {
-        return { success: false, message: 'Mật khẩu không chính xác' };
-    }
-    const { password: _, ...safeUser } = targetUser;
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(safeUser));
-
-    return { success: true, message: 'Đăng nhập thành công', user: safeUser };
-}
 export function logoutUser(): void {
     localStorage.removeItem(CURRENT_USER_KEY);
+}
+
+export async function registerUser(input: {
+    username: string;
+    email: string;
+    password: string;
+    fullName?: string;
+}): Promise<AuthResult> {
+    const error =
+        validateUsername(input.username) ??
+        validateEmail(input.email) ??
+        validatePassword(input.password);
+    if (error) return { success: false, message: error };
+
+    const users = readStorage<User[]>(USERS_KEY, []);
+    const username = input.username.trim();
+    const email = input.email.trim();
+
+    if (users.some((u) => u.username.toLowerCase() === username.toLowerCase())) {
+        return { success: false, message: 'Tên đăng nhập đã tồn tại' };
+    }
+    if (users.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
+        return { success: false, message: 'Email đã được đăng ký' };
+    }
+
+    const salt = crypto.randomUUID();
+    const newUser: User = {
+        id: `user_${Date.now()}`,
+        username,
+        email,
+        fullName: input.fullName?.trim() || username,
+        createdAt: new Date().toISOString(),
+        salt,
+        passwordHash: await hashPassword(input.password, salt)
+    };
+
+    localStorage.setItem(USERS_KEY, JSON.stringify([...users, newUser]));
+    return startSession(newUser);
+}
+
+export async function loginUser(usernameOrEmail: string, password: string): Promise<AuthResult> {
+    const query = usernameOrEmail.trim().toLowerCase();
+    const user = readStorage<User[]>(USERS_KEY, []).find(
+        (u) => u.username.toLowerCase() === query || u.email.toLowerCase() === query
+    );
+    if (!user) return { success: false, message: 'Tài khoản không tồn tại' };
+
+    const hash = await hashPassword(password, user.salt ?? '');
+    if (hash !== user.passwordHash) return { success: false, message: 'Mật khẩu không chính xác' };
+
+    return startSession(user);
 }
