@@ -38,8 +38,9 @@ export interface User {
     id: string;
     username: string;
     email: string;
-    password?: string;
-    fullName?: string;
+    fullName: string;
     createdAt: string;
+    passwordHash?: string;
+    salt?: string;
 }
 
