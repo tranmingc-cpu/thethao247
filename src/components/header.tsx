@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logoImg from "../assets/logo.png";
+import AuthModal from "./authModal";
+import { getCurrentUser, logoutUser } from "../services/authService";
+import { User } from "../types/types";
 import "./header.css";
 
 interface HeaderProps {
@@ -11,13 +14,29 @@ interface HeaderProps {
     categories?: string[];
 }
 const Header: React.FC<HeaderProps> = ({
-    selectedCategory,
-    onSelectCategory,
-    search,
-    onSearchChange,
-    categories = []
-}) => {
+                                           selectedCategory,
+                                           onSelectCategory,
+                                           search,
+                                           onSearchChange,
+                                           categories = []
+                                       }) => {
     const location = useLocation();
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+
+    useEffect(() => {
+        setCurrentUser(getCurrentUser());
+    }, []);
+
+    const handleLogout = () => {
+        logoutUser();
+        setCurrentUser(null);
+    };
+
+    const handleAuthSuccess = (user: User) => {
+        setCurrentUser(user);
+    };
+
     return (
         <header className="header-wrapper">
             <div className="top-bar">
@@ -41,16 +60,43 @@ const Header: React.FC<HeaderProps> = ({
                     </Link>
                     <span className="header-tagline">Mạng tin tức & Cộng đồng Thể thao số 1</span>
                 </div>
-                <div className="header-search">
-                    <input
-                        type="text"
-                        placeholder="Tìm kiếm cầu thủ, giải đấu, tin chuyển nhượng..."
-                        value={search}
-                        onChange={(e) => onSearchChange(e.target.value)}
-                    />
-                    <button type="button" title="Tìm kiếm">Tìm kiếm</button>
+                <div className="header-actions-area">
+                    <div className="header-search">
+                        <input
+                            type="text"
+                            placeholder="Tìm kiếm cầu thủ, giải đấu, tin chuyển nhượng..."
+                            value={search}
+                            onChange={(e) => onSearchChange(e.target.value)}
+                        />
+                        <button type="button" title="Tìm kiếm">Tìm kiếm</button>
+                    </div>
+
+                    <div className="header-user-box">
+                        {currentUser ? (
+                            <div className="user-profile-badge">
+                                <span className="user-avatar-circle">{currentUser.username.charAt(0).toUpperCase()}</span>
+                                <span className="user-display-name">{currentUser.fullName || currentUser.username}</span>
+                                <button type="button" className="btn-logout-small" onClick={handleLogout}>
+                                    Đăng xuất
+                                </button>
+                            </div>
+                        ) : (
+                            <button
+                                type="button"
+                                className="btn-login-header"
+                                onClick={() => setIsAuthModalOpen(true)}
+                            >
+                                Đăng nhập
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
+            <AuthModal
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
+                onAuthSuccess={handleAuthSuccess}
+            />
             <nav className="main-nav">
                 <div className="nav-container">
                     <Link
