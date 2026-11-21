@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { NewsItem } from "../../types/types";
 import { FootBall } from "../../config/football";
-import "../home.css";
+import "./football.css";
 
 interface FootballProps {
     news: NewsItem[];
@@ -10,6 +10,46 @@ interface FootballProps {
     search: string;
     onArticleClick: (article: NewsItem) => void;
 }
+const STANDINGS_DATA = {
+    epl: [
+        { rank: 1, team: "Liverpool", badge: "LIV", played: 28, points: 64 },
+        { rank: 2, team: "Arsenal", badge: "ARS", played: 28, points: 58 },
+        { rank: 3, team: "Man City", badge: "MCI", played: 28, points: 55 },
+        { rank: 4, team: "Chelsea", badge: "CHE", played: 28, points: 49 },
+        { rank: 5, team: "Newcastle", badge: "NEW", played: 28, points: 47 }
+    ],
+    laliga: [
+        { rank: 1, team: "Barcelona", badge: "BAR", played: 27, points: 61 },
+        { rank: 2, team: "Real Madrid", badge: "RMA", played: 27, points: 58 },
+        { rank: 3, team: "Atletico", badge: "ATM", played: 27, points: 54 },
+        { rank: 4, team: "Villarreal", badge: "VIL", played: 27, points: 48 },
+        { rank: 5, team: "Athletic Club", badge: "ATH", played: 27, points: 46 }
+    ],
+    vleague: [
+        { rank: 1, team: "Thép Xanh Nam Định", badge: "NĐ", played: 15, points: 35 },
+        { rank: 2, team: "Hà Nội FC", badge: "HN", played: 15, points: 30 },
+        { rank: 3, team: "CAHN", badge: "CA", played: 15, points: 28 },
+        { rank: 4, team: "Thể Công Viettel", badge: "TC", played: 15, points: 26 },
+        { rank: 5, team: "Bình Dương", badge: "BD", played: 15, points: 24 }
+    ]
+};
+
+const MATCHES_DATA = {
+    today: [
+        { league: "V-League", time: "18:00", home: "Hà Nội FC", away: "CAHN", status: "19:15", score: "VS" },
+        { league: "Ngoại Hạng Anh", time: "19:30", home: "Arsenal", away: "Chelsea", status: "Sắp đấu", score: "VS" },
+        { league: "La Liga", time: "22:15", home: "Real Madrid", away: "Sevilla", status: "Sắp đấu", score: "VS" }
+    ],
+    tomorrow: [
+        { league: "Cúp C1", time: "03:00", home: "Bayern Munich", away: "PSG", status: "Ngày mai", score: "VS" },
+        { league: "Ngoại Hạng Anh", time: "21:00", home: "Liverpool", away: "Man City", status: "Ngày mai", score: "VS" }
+    ],
+    yesterday: [
+        { league: "Ngoại Hạng Anh", time: "FT", home: "Man United", away: "Tottenham", status: "Kết thúc", score: "2 - 1" },
+        { league: "La Liga", time: "FT", home: "Barcelona", away: "Valencia", status: "Kết thúc", score: "3 - 0" }
+    ]
+};
+
 const Football: React.FC<FootballProps> = ({
                                                news,
                                                selectedCategory,
@@ -19,6 +59,8 @@ const Football: React.FC<FootballProps> = ({
                                            }) => {
     const [visibleCount, setVisibleCount] = useState<number>(10);
     const [sortBy, setSortBy] = useState<'latest' | 'oldest'>('latest');
+    const [activeLeagueTab, setActiveLeagueTab] = useState<'epl' | 'laliga' | 'vleague'>('epl');
+    const [activeMatchTab, setActiveMatchTab] = useState<'today' | 'tomorrow' | 'yesterday'>('today');
     const filteredNews = useMemo(() => {
         let result = news.filter((item) => {
             let matchCategory = selectedCategory === "Tất cả";
@@ -64,6 +106,21 @@ const Football: React.FC<FootballProps> = ({
     function formatDate(date: string | null) {
         if (!date) return "Vừa xong";
         try {
+            const now = Date.now();
+            const past = new Date(date).getTime();
+            const diffMs = now - past;
+            if (diffMs < 0 || isNaN(diffMs)) return "Vừa xong";
+
+            const diffMins = Math.floor(diffMs / (1000 * 60));
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+            if (diffMins < 1) return "Vừa xong";
+            if (diffMins < 60) return `${diffMins} phút trước`;
+            if (diffHours < 24) return `${diffHours} giờ trước`;
+            if (diffDays === 1) return "Hôm qua";
+            if (diffDays < 7) return `${diffDays} ngày trước`;
+
             const d = new Date(date);
             return `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")} - ${d.toLocaleDateString("vi-VN")}`;
         } catch {
@@ -265,7 +322,32 @@ const Football: React.FC<FootballProps> = ({
                             </div>
                         </div>
                         <div className="sidebar-card">
-                            <h3 className="sidebar-title">BXH Ngoại Hạng Anh</h3>
+                            <div className="widget-header-tabs">
+                                <h3 className="sidebar-title">Bảng Xếp Hạng</h3>
+                                <div className="widget-tab-buttons">
+                                    <button
+                                        type="button"
+                                        className={`widget-tab-btn ${activeLeagueTab === 'epl' ? 'active' : ''}`}
+                                        onClick={() => setActiveLeagueTab('epl')}
+                                    >
+                                        EPL
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={`widget-tab-btn ${activeLeagueTab === 'laliga' ? 'active' : ''}`}
+                                        onClick={() => setActiveLeagueTab('laliga')}
+                                    >
+                                        La Liga
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={`widget-tab-btn ${activeLeagueTab === 'vleague' ? 'active' : ''}`}
+                                        onClick={() => setActiveLeagueTab('vleague')}
+                                    >
+                                        V-League
+                                    </button>
+                                </div>
+                            </div>
                             <table className="widget-table">
                                 <thead>
                                 <tr>
@@ -276,59 +358,63 @@ const Football: React.FC<FootballProps> = ({
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td className="team-cell"><span className="team-badge">LIV</span> Liverpool</td>
-                                    <td>26</td>
-                                    <td><strong>60</strong></td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td className="team-cell"><span className="team-badge">ARS</span> Arsenal</td>
-                                    <td>26</td>
-                                    <td><strong>53</strong></td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td className="team-cell"><span className="team-badge">MCI</span> Man City</td>
-                                    <td>26</td>
-                                    <td><strong>50</strong></td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td className="team-cell"><span className="team-badge">CHE</span> Chelsea</td>
-                                    <td>26</td>
-                                    <td><strong>46</strong></td>
-                                </tr>
-                                <tr>
-                                    <td>5</td>
-                                    <td className="team-cell"><span className="team-badge">MUN</span> Man United</td>
-                                    <td>26</td>
-                                    <td><strong>42</strong></td>
-                                </tr>
+                                {STANDINGS_DATA[activeLeagueTab].map((row) => (
+                                    <tr key={row.rank}>
+                                        <td>{row.rank}</td>
+                                        <td className="team-cell">
+                                            <span className="team-badge">{row.badge}</span> {row.team}
+                                        </td>
+                                        <td>{row.played}</td>
+                                        <td><strong>{row.points}</strong></td>
+                                    </tr>
+                                ))}
                                 </tbody>
                             </table>
                         </div>
 
                         <div className="sidebar-card">
-                            <h3 className="sidebar-title"> Tâm Điểm Trận Đấu</h3>
-                            <div style={{ fontSize: "13px", display: "flex", flexDirection: "column", gap: "10px" }}>
-                                <div style={{ background: "#f8fafc", padding: "10px", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
-                                    <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "4px" }}>V-League • 19:15</div>
-                                    <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "700" }}>
-                                        <span>Hà Nội FC</span>
-                                        <span style={{ color: "#c8102e" }}>VS</span>
-                                        <span>CAHN</span>
-                                    </div>
+                            <div className="widget-header-tabs">
+                                <h3 className="sidebar-title">Lịch Thi Đấu & Kết Quả</h3>
+                                <div className="widget-tab-buttons">
+                                    <button
+                                        type="button"
+                                        className={`widget-tab-btn ${activeMatchTab === 'yesterday' ? 'active' : ''}`}
+                                        onClick={() => setActiveMatchTab('yesterday')}
+                                    >
+                                        Hôm qua
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={`widget-tab-btn ${activeMatchTab === 'today' ? 'active' : ''}`}
+                                        onClick={() => setActiveMatchTab('today')}
+                                    >
+                                        Hôm nay
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={`widget-tab-btn ${activeMatchTab === 'tomorrow' ? 'active' : ''}`}
+                                        onClick={() => setActiveMatchTab('tomorrow')}
+                                    >
+                                        Ngày mai
+                                    </button>
                                 </div>
-                                <div style={{ background: "#f8fafc", padding: "10px", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
-                                    <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "4px" }}>Ngoại Hạng Anh • 23:30</div>
-                                    <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "700" }}>
-                                        <span>Arsenal</span>
-                                        <span style={{ color: "#c8102e" }}>VS</span>
-                                        <span>Chelsea</span>
+                            </div>
+                            <div className="matches-list">
+                                {MATCHES_DATA[activeMatchTab].map((m, idx) => (
+                                    <div key={idx} className="match-item-card">
+                                        <div className="match-item-header">
+                                            <span>{m.league}</span>
+                                            <span>{m.time}</span>
+                                        </div>
+                                        <div className="match-item-teams">
+                                            <span className="match-team home">{m.home}</span>
+                                            <span className={`match-score-pill ${m.score !== 'VS' ? 'completed' : ''}`}>
+                                                {m.score}
+                                            </span>
+                                            <span className="match-team away">{m.away}</span>
+                                        </div>
                                     </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
                     </aside>
