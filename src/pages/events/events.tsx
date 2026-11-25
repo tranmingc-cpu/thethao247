@@ -9,25 +9,18 @@ interface EventsProps {
     onArticleClick: (article: NewsItem) => void;
 }
 
-type EventLayout = 'tournament' | 'medal' | 'news';
-
-const EVENT_LAYOUTS: Record<string, EventLayout> = {
-    'Asian Cup': 'tournament',
-    'World Cup': 'tournament',
-    'U23 Châu Á': 'tournament',
-    'SEA Games': 'medal',
-    'Olympic': 'medal',
-    'AFF Cup': 'news',
-    'Esports': 'news',
-    'Xe': 'news',
-    'Công nghệ': 'news'
+type EventWidget = {
+    title: string;
+    url: string;
+    description: string;
+    size?: 'normal' | 'compact';
 };
 
 const EVENT_INTRO: Record<string, string> = {
-    'Asian Cup': 'Tin tức, lịch thi đấu và thông tin về Vòng chung kết Asian Cup.',
-    'World Cup': 'Tin tức, diễn biến và thông tin về Giải vô địch bóng đá thế giới.',
-    'U23 Châu Á': 'Tin tức và thông tin về các đội tuyển tại giải U23 châu Á.',
-    'SEA Games': 'Tin tức, thành tích và hoạt động thể thao tại Đại hội Thể thao Đông Nam Á.',
+    'Asian Cup': 'Tin tức, lịch thi đấu, kết quả và bảng xếp hạng Vòng chung kết Asian Cup.',
+    'World Cup': 'Tin tức, lịch thi đấu, kết quả và bảng xếp hạng vòng loại World Cup 2026.',
+    'U23 Châu Á': 'Tin tức, lịch thi đấu, kết quả và bảng xếp hạng giải U23 châu Á.',
+    'SEA Games': 'Tin tức và thành tích của các đoàn thể thao tại Đại hội Thể thao Đông Nam Á.',
     'Olympic': 'Tin tức và thành tích thể thao tại Thế vận hội Olympic.',
     'AFF Cup': 'Tin tức mới nhất về bóng đá Đông Nam Á.',
     'Esports': 'Tin tức thể thao điện tử, các tựa game và giải đấu nổi bật.',
@@ -35,8 +28,52 @@ const EVENT_INTRO: Record<string, string> = {
     'Công nghệ': 'Tin tức công nghệ, thiết bị và những xu hướng mới.'
 };
 
-const ASIAN_CUP_FIXTURES = 'https://thethao247.vn/livescores/chau-a/asian-cup/?box=&iframe=&limit=10&nocache=1';
-const ASIAN_CUP_STANDINGS = 'https://thethao247.vn/livescores/chau-a/asian-cup/standings/?box=&iframe=&nocache=1&priority_table=F&round=2BlOBHpg';
+/*
+ * Chỉ khai báo widget khi đã xác định được đúng trang dữ liệu của giải trên
+ * Thể Thao 247. Không dùng chung URL giữa các giải.
+ *
+ * Không khai báo widget SEA Games khi chưa có nguồn bảng tổng sắp huy chương
+ * có thể nhúng và kiểm chứng trực tiếp. Không tạo dữ liệu huy chương giả.
+ */
+const EVENT_WIDGETS: Record<string, EventWidget[]> = {
+    'Asian Cup': [
+        {
+            title: 'Lịch thi đấu & kết quả Asian Cup',
+            url: 'https://thethao247.vn/livescores/chau-a/asian-cup/?box=&iframe=&limit=10&nocache=1',
+            description: 'Lịch thi đấu và kết quả của Asian Cup 2027.'
+        },
+        {
+            title: 'Bảng xếp hạng Asian Cup',
+            url: 'https://thethao247.vn/livescores/chau-a/asian-cup/standings/?box=&iframe=&nocache=1&priority_table=F&round=2BlOBHpg',
+            description: 'Bảng xếp hạng các bảng đấu Asian Cup.'
+        }
+    ],
+    'World Cup': [
+        {
+            title: 'Lịch thi đấu & kết quả World Cup',
+            url: 'https://thethao247.vn/livescores/the-gioi/world-championship/?box=&iframe=&limit=10&nocache=1',
+            description: 'Lịch thi đấu và kết quả vòng loại World Cup 2026.'
+        },
+        {
+            title: 'Bảng xếp hạng World Cup',
+            url: 'https://thethao247.vn/livescores/the-gioi/world-championship/standings/?box=&iframe=&nocache=1',
+            description: 'Bảng xếp hạng các khu vực vòng loại World Cup.'
+        }
+    ],
+    'U23 Châu Á': [
+        {
+            title: 'Lịch thi đấu & kết quả U23 Châu Á',
+            url: 'https://thethao247.vn/livescores/chau-a/afc-asian-cup-u23/?box=&iframe=&limit=10&nocache=1',
+            description: 'Lịch thi đấu và kết quả AFC Asian Cup U23.'
+        },
+        {
+            title: 'Bảng xếp hạng U23 Châu Á',
+            url: 'https://thethao247.vn/livescores/chau-a/afc-asian-cup-u23/standings/?box=&iframe=&nocache=1',
+            description: 'Bảng xếp hạng các bảng đấu AFC Asian Cup U23.',
+            size: 'compact'
+        }
+    ],
+};
 
 const Events: React.FC<EventsProps> = ({ search, onArticleClick }) => {
     const [news, setNews] = useState<NewsItem[]>([]);
@@ -61,7 +98,9 @@ const Events: React.FC<EventsProps> = ({ search, onArticleClick }) => {
         return () => { mounted = false; };
     }, []);
 
-    const filteredNews = useMemo(() => {
+    // Lọc theo danh mục và từ khóa trước, sau đó tạo một thứ tự nền cố định
+    // (mới nhất) để chọn tin nổi bật. Nút Mới nhất/Cũ nhất chỉ tác động danh sách tin.
+    const matchedNews = useMemo(() => {
         const query = search.toLocaleLowerCase('vi-VN').trim();
         const result = news.filter(item => {
             // Feed Asian Cup hiện đang trộn bài từ chuyên mục U17 Asian Cup.
@@ -75,21 +114,35 @@ const Events: React.FC<EventsProps> = ({ search, onArticleClick }) => {
             return matchEvent && (!query || searchableText.includes(query));
         });
 
-        result.sort((a, b) => {
+        return result.sort((a, b) => {
             const dateA = new Date(a.pubDate || 0).getTime();
             const dateB = new Date(b.pubDate || 0).getTime();
-            return sortBy === 'latest' ? dateB - dateA : dateA - dateB;
+            return dateB - dateA;
         });
-        return result;
-    }, [news, selectedEvent, search, sortBy]);
+    }, [news, selectedEvent, search]);
+
+    const sortedNews = useMemo(() => {
+        if (sortBy === 'latest') return matchedNews;
+        return [...matchedNews].sort((a, b) => {
+            const dateA = new Date(a.pubDate || 0).getTime();
+            const dateB = new Date(b.pubDate || 0).getTime();
+            return dateA - dateB;
+        });
+    }, [matchedNews, sortBy]);
 
     useEffect(() => setVisibleCount(10), [selectedEvent, search, sortBy]);
 
-    const activeLayout = selectedEvent === 'Tất cả' ? 'news' : (EVENT_LAYOUTS[selectedEvent] || 'news');
-    const heroNews = filteredNews[0];
-    const secondaryNews = filteredNews.slice(1, 3);
-    const sidebarNews = filteredNews.slice(3, 8);
-    const listNews = filteredNews.slice(3, 3 + visibleCount);
+    // Ba bài đầu tiên theo thứ tự mới nhất được giữ cố định khi đổi cách sắp xếp.
+    const featuredNews = matchedNews.slice(0, 3);
+    const heroNews = featuredNews[0];
+    const secondaryNews = featuredNews.slice(1, 3);
+    const featuredLinks = new Set(featuredNews.map(item => item.link));
+    const sidebarNews = matchedNews.slice(3, 8);
+    const remainingSortedNews = sortedNews.filter(item => !featuredLinks.has(item.link));
+    const listNews = remainingSortedNews.slice(0, visibleCount);
+    const activeWidgets = selectedEvent === 'Tất cả'
+        ? []
+        : (EVENT_WIDGETS[selectedEvent] || []);
 
     const formatDate = (date: string | null) => {
         if (!date) return 'Vừa cập nhật';
@@ -135,14 +188,14 @@ const Events: React.FC<EventsProps> = ({ search, onArticleClick }) => {
                 </div>
             </section>
 
-            {search.trim() && <div className="events-search-status">Kết quả tìm kiếm cho <strong>“{search}”</strong>: {filteredNews.length} bài viết</div>}
+            {search.trim() && <div className="events-search-status">Kết quả tìm kiếm cho <strong>“{search}”</strong>: {matchedNews.length} bài viết</div>}
             {loadError && <div className="events-error">{loadError}</div>}
 
             <div className="events-columns">
                 <section className="events-main-column">
                     <div className="events-section-heading">
                         <h1>{selectedEvent === 'Tất cả' ? 'Tin Sự kiện & Công nghệ' : selectedEvent}</h1>
-                        <span>{filteredNews.length} bài viết</span>
+                        <span>{matchedNews.length} bài viết</span>
                     </div>
 
                     {heroNews ? (
@@ -166,23 +219,39 @@ const Events: React.FC<EventsProps> = ({ search, onArticleClick }) => {
                                 </div>
                             </div>
 
-                            {activeLayout === 'tournament' && selectedEvent === 'Asian Cup' && (
+                            {selectedEvent !== 'Tất cả' && (
                                 <section className="events-info-panel">
-                                    <h2>Thông tin Asian Cup 2027</h2>
-                                    <p>{EVENT_INTRO[selectedEvent]}</p>
-                                    <div className="events-info-links">
-                                        <a href="https://thethao247.vn/asian-cup" target="_blank" rel="noreferrer">Trang Asian Cup trên Thể Thao 247</a>
-                                        <a href={ASIAN_CUP_FIXTURES} target="_blank" rel="noreferrer">Mở lịch thi đấu</a>
-                                        <a href={ASIAN_CUP_STANDINGS} target="_blank" rel="noreferrer">Mở bảng xếp hạng</a>
-                                    </div>
+                                    <h2>{selectedEvent}</h2>
+                                    <p>{EVENT_INTRO[selectedEvent] || 'Tin tức mới nhất từ Thể Thao 247.'}</p>
+                                </section>
+                            )}
+
+                            {activeWidgets.length > 0 && (
+                                <section className="events-widgets-section">
+                                    {activeWidgets.map((widget) => (
+                                        <div className="events-widget-card" key={widget.title}>
+                                            <div className="events-widget-heading">
+                                                <div>
+                                                    <h2>{widget.title}</h2>
+                                                    <p>{widget.description}</p>
+                                                </div>
+                                            </div>
+                                            <iframe
+                                                className={`events-widget-iframe ${widget.size === 'compact' ? 'events-widget-iframe-compact' : ''}`}
+                                                title={widget.title}
+                                                src={widget.url}
+                                                loading="lazy"
+                                            />
+                                        </div>
+                                    ))}
                                 </section>
                             )}
 
                             <div className="events-content-grid">
                                 <div className="events-news-list">
-                                    <div className="events-subheading"><h2>Tin mới nhất</h2><span>{filteredNews.length} bài</span></div>
+                                    <div className="events-subheading"><h2>Tin mới nhất</h2><span>{remainingSortedNews.length} bài</span></div>
                                     {listNews.map(renderArticleCard)}
-                                    {filteredNews.length > 3 + visibleCount && (
+                                    {remainingSortedNews.length > visibleCount && (
                                         <button className="events-load-more" onClick={() => setVisibleCount(count => count + 10)}>Xem thêm tin tức</button>
                                     )}
                                 </div>
@@ -197,24 +266,6 @@ const Events: React.FC<EventsProps> = ({ search, onArticleClick }) => {
                                             ))}
                                         </ol>
                                     </section>
-                                    {selectedEvent === 'Asian Cup' && (
-                                        <>
-                                            <section className="events-sidebar-card">
-                                                <h2>Lịch thi đấu Asian Cup</h2>
-                                                <iframe title="Lịch thi đấu Asian Cup" src={ASIAN_CUP_FIXTURES} loading="lazy" />
-                                            </section>
-                                            <section className="events-sidebar-card">
-                                                <h2>Bảng xếp hạng Asian Cup</h2>
-                                                <iframe title="Bảng xếp hạng Asian Cup" src={ASIAN_CUP_STANDINGS} loading="lazy" />
-                                            </section>
-                                        </>
-                                    )}
-                                    {selectedEvent !== 'Asian Cup' && selectedEvent !== 'Tất cả' && (
-                                        <section className="events-sidebar-card events-about-card">
-                                            <h2>Giới thiệu chuyên mục</h2>
-                                            <p>{EVENT_INTRO[selectedEvent] || 'Tin tức mới nhất từ Thể Thao 247.'}</p>
-                                        </section>
-                                    )}
                                 </aside>
                             </div>
                         </>

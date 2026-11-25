@@ -35,13 +35,14 @@
 .events-section-heading { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0788c9; margin-bottom: 18px; padding-bottom: 10px; }
 .events-section-heading h1 { margin: 0; font-size: 22px; text-transform: uppercase; color: #0788c9; font-weight: 800; }
 .events-section-heading span { color: #718096; font-size: 13px; white-space: nowrap; }
-.events-hero-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(230px, 1fr); gap: 14px; margin-bottom: 24px; }
+/* Tin nổi bật: một bài lớn phía trên, hai bài nhỏ nằm dưới và phủ kín chiều ngang. */
+.events-hero-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; margin-bottom: 24px; }
 .events-hero-main, .events-hero-small { position: relative; overflow: hidden; border-radius: 7px; background: #172033; cursor: pointer; }
-.events-hero-main { height: 350px; }
-.events-hero-main > img, .events-hero-small > img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s ease; }
-.events-hero-main:hover > img, .events-hero-small:hover > img { transform: scale(1.035); }
-.events-hero-side { display: grid; grid-template-rows: 1fr 1fr; gap: 14px; min-height: 350px; }
-.events-hero-small { min-height: 0; }
+.events-hero-main { width: 100%; aspect-ratio: 16 / 9; height: auto; }
+.events-hero-main > img, .events-hero-small > img { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; background: #e9eef3; transition: transform .3s ease; }
+.events-hero-main:hover > img, .events-hero-small:hover > img { transform: none; }
+.events-hero-side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.events-hero-small { min-width: 0; aspect-ratio: 16 / 9; height: auto; }
 .events-hero-overlay, .events-small-overlay { position: absolute; inset: auto 0 0; padding: 22px 18px 16px; color: #fff; background: linear-gradient(transparent, rgba(0,0,0,.88)); }
 .events-hero-overlay h2 { font-size: 22px; line-height: 1.35; margin: 8px 0; }
 .events-small-overlay { padding: 12px; }
@@ -73,7 +74,6 @@
 .events-trending-list li { display: flex; gap: 11px; padding: 11px 0; border-bottom: 1px solid #eff2f5; cursor: pointer; font-size: 13px; line-height: 1.45; font-weight: 600; }
 .events-trending-list li:last-child { border-bottom: 0; }
 .events-trending-list li b { color: #0790ce; font-size: 18px; }
-.events-sidebar-card iframe { display: block; width: 100%; min-height: 260px; border: 0; }
 .events-load-more { display: block; margin: 18px auto; border: 1px solid #0788c9; background: #fff; color: #0788c9; border-radius: 5px; padding: 10px 24px; cursor: pointer; font-weight: 700; }
 .events-load-more:hover { background: #0788c9; color: #fff; }
 .events-no-image { width: 100%; height: 100%; min-height: 100px; display: grid; place-items: center; background: #e9f3f9; color: #7391a5; font-weight: 800; }
@@ -88,12 +88,91 @@
     .events-filter-row { display: block; }
     .events-filter-row > strong { display: block; margin-bottom: 10px; }
     .events-hero-grid { grid-template-columns: 1fr; }
-    .events-hero-main { height: 260px; }
-    .events-hero-side { min-height: 180px; grid-template-columns: 1fr 1fr; grid-template-rows: 180px; }
+    .events-hero-main { aspect-ratio: 16 / 9; }
+    .events-hero-side { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .events-hero-small { aspect-ratio: 4 / 3; }
     .events-hero-overlay h2 { font-size: 18px; }
     .events-section-heading h1 { font-size: 18px; }
     .events-list-image { flex-basis: 112px; height: 86px; }
     .events-list-content h3 { font-size: 14px; }
     .events-list-content p { display: none; }
     .events-sidebar { display: flex; }
+}
+
+
+/* Khối lịch thi đấu / kết quả / bảng thành tích đặt giữa luồng tin chính */
+.events-widgets-section {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    margin: 0 0 26px;
+}
+
+.events-widget-card {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid #e2eaf0;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.events-widget-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 18px;
+    border-bottom: 1px solid #e8eef3;
+    background: #f8fbfd;
+}
+
+.events-widget-heading h2 {
+    margin: 0 0 5px;
+    color: #172b43;
+    font-size: 18px;
+}
+
+.events-widget-heading p {
+    margin: 0;
+    color: #718096;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.events-widget-card iframe {
+    display: block;
+    width: 100%;
+    height: 430px;
+    min-height: 430px;
+    border: 0;
+    background: #fff;
+}
+
+/* BXH U23 có nội dung ngắn hơn Asian Cup, nên dùng khung thấp hơn. */
+.events-widget-card iframe.events-widget-iframe-compact {
+    height: 270px;
+    min-height: 270px;
+}
+
+@media (max-width: 650px) {
+    .events-widget-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+        padding: 13px;
+    }
+
+    .events-widget-heading h2 {
+        font-size: 16px;
+    }
+
+    .events-widget-card iframe {
+        height: 360px;
+        min-height: 360px;
+    }
+
+    .events-widget-card iframe.events-widget-iframe-compact {
+        height: 230px;
+        min-height: 230px;
+    }
 }
