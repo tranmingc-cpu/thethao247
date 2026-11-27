@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { NewsItem } from "../types/types.ts";
+import { getCurrentUser } from "../services/authService";
+import { isFavorite, toggleFavorite } from "../services/favoriteService";
 import "./detail.css";
 interface DetailProps {
     article: NewsItem | null;
@@ -8,6 +10,21 @@ interface DetailProps {
     allNews?: NewsItem[];
 }
 const Detail: React.FC<DetailProps> = ({ article, onBack, onSelectArticle, allNews = [] }) => {
+    const [saved, setSaved] = useState<boolean>(false);
+    const currentUser = getCurrentUser();
+
+    useEffect(() => {
+        if (article) {
+            setSaved(isFavorite(article.id, currentUser?.id));
+        }
+    }, [article, currentUser?.id]);
+
+    const handleToggleBookmark = () => {
+        if (!article) return;
+        const result = toggleFavorite(article, currentUser?.id);
+        setSaved(result);
+    };
+
     if (!article) {
         return (
             <div className="detail-wrapper">
@@ -43,7 +60,26 @@ const Detail: React.FC<DetailProps> = ({ article, onBack, onSelectArticle, allNe
             </div>
             <div className="detail-layout">
                 <article className="detail-main">
-                    <span className="detail-category-tag">{article.category || "Tin nóng"}</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <span className="detail-category-tag">{article.category || "Tin nóng"}</span>
+                        <button
+                            type="button"
+                            onClick={handleToggleBookmark}
+                            style={{
+                                background: saved ? '#0284c7' : '#f0f9ff',
+                                color: saved ? '#ffffff' : '#0284c7',
+                                border: '1px solid #bae6fd',
+                                padding: '6px 14px',
+                                borderRadius: '20px',
+                                fontSize: '13px',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            {saved ? 'Đã lưu trang này' : 'Lưu vào yêu thích'}
+                        </button>
+                    </div>
                     <h1 className="detail-title">{article.title}</h1>
                     <div className="detail-meta">
                         <span>⏱ {formatDate(article.pubDate)}</span>
