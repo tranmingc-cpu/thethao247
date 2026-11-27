@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logoImg from "../assets/logo.png";
 import AuthModal from "./authModal";
 import { getCurrentUser, logoutUser } from "../services/authService";
-import { User } from "../types/types";
+import { getFavorites, removeFavorite } from "../services/favoriteService";
+import { User, NewsItem } from "../types/types";
 import "./header.css";
 
 interface HeaderProps {
@@ -12,29 +13,74 @@ interface HeaderProps {
     search: string;
     onSearchChange: (value: string) => void;
     categories?: string[];
+    onArticleClick?: (article: NewsItem) => void;
 }
 const Header: React.FC<HeaderProps> = ({
                                            selectedCategory,
                                            onSelectCategory,
                                            search,
                                            onSearchChange,
-                                           categories = []
+                                           categories = [],
+                                           onArticleClick
                                        }) => {
     const location = useLocation();
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+    const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+    const [favorites, setFavorites] = useState<NewsItem[]>([]);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    const loadFavorites = (userId?: string) => {
+        setFavorites(getFavorites(userId));
+    };
 
     useEffect(() => {
-        setCurrentUser(getCurrentUser());
+        const user = getCurrentUser();
+        setCurrentUser(user);
+        loadFavorites(user?.id);
+
+        const handleFavChange = () => {
+            const u = getCurrentUser();
+            loadFavorites(u?.id);
+        };
+
+        window.addEventListener("favorites_changed", handleFavChange);
+        return () => window.removeEventListener("favorites_changed", handleFavChange);
+    }, []);
+
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+                setIsDropdownOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     const handleLogout = () => {
         logoutUser();
         setCurrentUser(null);
+        setIsDropdownOpen(false);
+        loadFavorites(undefined);
     };
 
     const handleAuthSuccess = (user: User) => {
         setCurrentUser(user);
+        loadFavorites(user.id);
+    };
+
+    const handleRemoveFavorite = (e: React.MouseEvent, articleId: string) => {
+        e.stopPropagation();
+        removeFavorite(articleId, currentUser?.id);
+        loadFavorites(currentUser?.id);
+    };
+
+    const handleItemClick = (article: NewsItem) => {
+        setIsDropdownOpen(false);
+        if (onArticleClick) {
+            onArticleClick(article);
+        }
     };
 
     return (
@@ -71,14 +117,76 @@ const Header: React.FC<HeaderProps> = ({
                         <button type="button" title="Tìm kiếm">Tìm kiếm</button>
                     </div>
 
-                    <div className="header-user-box">
+                    <div className="header-user-box" ref={dropdownRef}>
                         {currentUser ? (
-                            <div className="user-profile-badge">
-                                <span className="user-avatar-circle">{currentUser.username.charAt(0).toUpperCase()}</span>
-                                <span className="user-display-name">{currentUser.fullName || currentUser.username}</span>
-                                <button type="button" className="btn-logout-small" onClick={handleLogout}>
-                                    Đăng xuất
-                                </button>
+                            <div className="user-dropdown-wrapper">
+                                <div
+                                    className="user-profile-badge clickable"
+                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                >
+                                    <span className="user-avatar-circle">{currentUser.username.charAt(0).toUpperCase()}</span>
+                                    <span className="user-display-name">{currentUser.fullName || currentUser.username}</span>
+                                    <span className="user-caret">{isDropdownOpen ? '▴' : '▾'}</span>
+                                </div>
+
+                                {isDropdownOpen && (
+                                    <div className="user-dropdown-menu">
+                                        <div className="dropdown-user-info">
+                                            <strong>{currentUser.fullName || currentUser.username}</strong>
+                                            <span className="dropdown-email">{currentUser.email}</span>
+                                        </div>
+
+                                        <div className="dropdown-divider" />
+
+                                        <div className="dropdown-fav-header">
+                                            <span>Trang báo yêu thích</span>
+                                            <span className="fav-count-tag">{favorites.length}</span>
+                                        </div>
+
+                                        <div className="dropdown-fav-list">
+                                            {favorites.length === 0 ? (
+                                                <div className="fav-empty-note">
+                                                    Chưa lưu bài viết nào.<br />
+                                                    <small>Bấm "Lưu vào yêu thích" khi đọc bài để xem lại tại đây.</small>
+                                                </div>
+                                            ) : (
+                                                favorites.map((item) => (
+                                                    <div
+                                                        key={item.id || item.link}
+                                                        className="fav-item"
+                                                        onClick={() => handleItemClick(item)}
+                                                    >
+                                                        {item.image && (
+                                                            <img src={item.image} alt="" className="fav-item-thumb" />
+                                                        )}
+                                                        <div className="fav-item-content">
+                                                            <p className="fav-item-title">{item.title}</p>
+                                                            <span className="fav-item-cat">{item.category || 'Tin tức'}</span>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            className="btn-remove-fav"
+                                                            title="Bỏ lưu"
+                                                            onClick={(e) => handleRemoveFavorite(e, item.id || item.link)}
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+
+                                        <div className="dropdown-divider" />
+
+                                        <button
+                                            type="button"
+                                            className="dropdown-logout-btn"
+                                            onClick={handleLogout}
+                                        >
+                                            Đăng xuất
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <button

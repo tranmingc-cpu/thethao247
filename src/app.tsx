@@ -83,6 +83,7 @@ const AppContent: React.FC = () => {
                 search={search}
                 onSearchChange={handleSearchChange}
                 categories={categories}
+                onArticleClick={handleArticleClick}
             />
 
             <Routes>
